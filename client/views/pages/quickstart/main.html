@@ -1,0 +1,109 @@
+<!-- First Grid -->
+<section class="w3-row-padding w3-padding-64 w3-container">
+  <div class="w3-content">
+    <div class="w3-twothird">
+      <h1>Quickstart</h1>
+      <h3>Dowload the framework</h3>
+      <pre><code class="language-bash">
+        $ git clone https://github.com/smikodanic/regoch-weber.git &lt;projectName&gt;
+        $ cd &lt;projectName&gt;
+        $ rm -rg .git
+      </code></pre>
+      The files with small example app is downloaded.
+      Now you can start to build your app by changing HTML, CSS and JS files in "client" folders.
+      In most cases there's no need to change files other files in other folders.
+
+      <h3>Folder &amp; Files Structure</h3>
+      <img src="/assets/img/folder-structure.png" alt="Weber Folder Structure">
+
+      <h3>Start the app</h3>
+      <pre><code class="language-bash">
+        $ node server
+        or just
+        $ nodemon
+      </code></pre>
+      <img src="/assets/img/start-app.png" alt="Weber Start">
+      <br>Now you can open the app in your browser <a href="http://localhost:3333" target="_blank">http://localhost:3333</a>.
+
+
+
+      <h3>The Code</h3>
+
+      <h4>/app.js - <small>here the magic starts</small> </h4>
+      <pre><code class="language-js">
+import { App, syslib } from '../sys/index.js';
+
+// conf
+import { $debugOpts } from './conf/index.js';
+
+
+// controllers
+import HomeCtrl from './controllers/HomeCtrl.js';
+import QuickstartCtrl from './controllers/QuickstartCtrl.js';
+import NotfoundCtrl from './controllers/NotfoundCtrl.js';
+
+
+// routes
+const routes = [
+  ['when', '/', 'HomeCtrl'],
+  ['when', '/quickstart', 'QuickstartCtrl'],
+  ['notfound', 'NotfoundCtrl']
+];
+
+
+// app
+const app = new App();
+app</small>
+  .controllers([
+    HomeCtrl,
+    QuickstartCtrl,
+    NotfoundCtrl
+  ])
+  .routes(routes)
+  .debugger($debugOpts);
+      </code></pre>
+
+
+      <h4>/controllers/HomeCtrl.js - <small>the home controller</small> </h4>
+      <pre><code class="language-js">
+import { Controller } from '../../sys/index.js';
+
+
+class HomeCtrl extends Controller {
+
+  constructor(app) {
+    super();
+  }
+
+  async loader(trx) {
+    this.setTitle('Regoch Weber - JS Single Page App Framework');
+    this.setDescription('The Regoch Weber is simple and intuitive JavaScript framework for browser single page applications and mobile applications.');
+    this.setKeywords('regoch, weber, framework, javascript, js, single page app');
+    this.setLang('en');
+
+    await this.loadView('#layout', 'pages/home/layout.html');
+    await this.loadViews([
+      ['#main', 'pages/home/main.html'],
+    ], true);
+  }
+
+
+  async postrend() {
+    this.$models.appName = 'Regoch Weber'; // use model in &lt;p data-rg-print="appName"&gt; &lt;/p&gt;
+  }
+
+}
+
+export default HomeCtrl;
+      </code></pre>
+
+
+      <p class="w3-margin-top">The full code is available at <a href="https://github.com/smikodanic/regoch-weber" target="_blank">https://github.com/smikodanic/regoch-weber</a></p>
+
+    </div>
+
+    <div class="w3-third w3-center">
+      <i class="fa fa-64x fa-rss w3-padding-64 w3-text-light-blue"></i>
+    </div>
+  </div>
+</section>
