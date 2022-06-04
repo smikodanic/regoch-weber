@@ -1,31 +1,25 @@
 import { Controller } from '../../sys/index.js';
 
 
-class QuickstartCtrl extends Controller {
+class DocsCtrl extends Controller {
 
   constructor(app) {
     super();
   }
 
   async loader(trx) {
-    this.setTitle('Regoch Weber - Quickstart');
+    this.setTitle('Regoch Weber - Docs');
     this.setDescription('The Regoch Weber is simple and intuitive JavaScript framework for browser single page applications and mobile applications.');
     this.setKeywords('regoch, weber, framework, javascript, js, single page app');
     this.setLang('en');
 
+    await this.loadView('#layout', 'pages/docs/layout.html');
     await this.loadViews([
-      ['#layout', 'pages/quickstart/layout.html'],
-      ['#main', 'pages/quickstart/main.html'],
+      ['#main', 'pages/docs/main.html'],
     ], true);
-  }
-
-
-  async postrend() {
-    this.showButtonBars = false;
-    await this.rgIf('showButtonBars');
   }
 
 }
 
 
-export default QuickstartCtrl;
+export default DocsCtrl;

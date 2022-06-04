@@ -326,8 +326,8 @@ class View extends DataRg {
    */
   async lazyJS(urls, waitMS = 0) {
     if (!urls) { return; }
-    await new Promise(r => setTimeout(r, waitMS));
     for (const url of urls) {
+      await new Promise(r => setTimeout(r, waitMS));
       // check if SCRIPT already exists and if exists remove it
       const elems = document.body.querySelectorAll(`script[src="${url}"]`);
       if (elems.length) { this.unlazyJS([url]); }

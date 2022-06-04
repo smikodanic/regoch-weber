@@ -1,10 +1,10 @@
 {
-  "name": "regoch-web",
-  "version": "2.0.0",
-  "title": "Regoch Web",
-  "description": "Regoch Web is the javascript framework for single page applications. Intuitive and simple to use.",
+  "name": "regoch-weber",
+  "version": "1.0.0",
+  "title": "Regoch Weber",
+  "description": "Regoch Weber is the javascript framework for single page applications (browser, mobile apps, browser extensions, desktop apps). Intuitive and simple to use.",
   "author": "Sasa Mikodanic",
-  "homepage": "http://www.regoch.org/web",
+  "homepage": "http://www.regoch.org/weber",
   "license": "MIT",
   "keywords": [
     "regoch",
@@ -12,19 +12,16 @@
     "single page app",
     "single page application",
     "javascript framework",
-    "regoch-web"
+    "regoch-weber"
   ],
   "main": "./server",
   "scripts": {},
   "dependencies": {},
-  "directories": {
-    "src": "client/src"
-  },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/smikodanic/regoch-web.git"
+    "url": "git+https://github.com/smikodanic/regoch-weber.git"
   },
   "bugs": {
-    "url": "https://github.com/smikodanic/regoch-web/issues"
+    "url": "https://github.com/smikodanic/regoch-weber/issues"
   }
 }

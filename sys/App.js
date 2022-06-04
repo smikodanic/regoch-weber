@@ -143,6 +143,8 @@ class App {
     const router = new Router(this.$debugOpts.router, this.$debugOpts.regochRouter);
 
     for (const routeCnf of routesCnf) {
+      if (!routeCnf || (!!routeCnf && !Array.isArray(routeCnf)) || (!!routeCnf && !routeCnf.length)) { throw new Error(`Invalid route definition ${routeCnf}`); }
+
       const cmd = routeCnf[0]; // 'when', 'notfound', 'do', 'redirect'
 
       if (cmd === 'when') {

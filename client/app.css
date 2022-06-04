@@ -22,6 +22,16 @@ button {
 
 .fa-heart,
 .fa-rss,
+.fa-book,
 .fa-coffee {
   font-size: 200px
+}
+
+
+a {
+  color: #00b5ed;
+}
+
+a:hover {
+  color: #0070e2;
 }

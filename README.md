@@ -1,9 +1,10 @@
-# regoch-web
+# regoch-weber
 > The Regoch Weber is simple and intuitive JavaScript framework for 
 browser single page applications, mobile applications, browser extensions, electronJS desktop apps, ...etc.
 
 ## Features
 - no slow compilation as in Angular, Vue or React (no compilation at all)
+- no npm package dependencies - build apps which will not depend on 3rd party code
 - no typescript, no heavy compiling, no bullshit
 - create lightweight applications - small app file size (~50kB only)
 - use import &amp; export <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Modules" target="_blank">ES Modules</a> to build complex apps with clear and readable code
@@ -12,6 +13,13 @@ browser single page applications, mobile applications, browser extensions, elect
 - create very fast applications with reactive features
 - shorten your development time rapidly
 - steep learning curve (you'll reach high programming skills very fast)
+
+
+## Good for dynamic and reactive code in:
+- browser single page applications
+- browser extensions
+- ElectronJs desktop applications
+- Cordova mobile applications
 
 
 ## Download the framework

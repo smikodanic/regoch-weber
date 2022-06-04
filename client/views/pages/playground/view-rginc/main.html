@@ -1,0 +1,18 @@
+<main class="w3-container w3-margin">
+  <h1>View::rgInc() Test</h1>
+  <p>
+    This example tests implementation of multilevel, nested <b>data-rg-inc</b> elements.
+    <br>It's the <b>View::rgInc()</b> method.
+  </p>
+  <br>
+
+  <article data-rg-inc="playground/inc1.html">--inc1.html--</article>
+
+  <br><br><span>--------------</span>
+
+  <section data-rg-inc="playground/inc10.html @@ sibling @@ b">--load inc10.html@@sibling@@b--</section>
+
+  <br><br><span>--------------</span>
+
+  <section data-rg-inc="playground/inc3.html @@ prepend">--load inc3.html@@prepend--</section>
+</main>
