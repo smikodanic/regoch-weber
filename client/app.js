@@ -1,32 +1,34 @@
-import { App, syslib } from '../sys/index.js';
+import { App, syslib } from '/sys/index.js';
+import env from './env.js';
+console.log('env::', env);
 
 // conf
-import { $debugOpts, authOpts } from './conf/index.js';
+import { $debugOpts, authOpts } from '/client/conf/index.js';
 
 
 // controllers
-import HomeCtrl from './controllers/HomeCtrl.js';
-import QuickstartCtrl from './controllers/QuickstartCtrl.js';
-import DocsCtrl from './controllers/DocsCtrl.js';
-import ExamplesCtrl from './controllers/ExamplesCtrl.js';
-import NotfoundCtrl from './controllers/NotfoundCtrl.js';
+import HomeCtrl from '/client/controllers/HomeCtrl.js';
+import QuickstartCtrl from '/client/controllers/QuickstartCtrl.js';
+import DocsCtrl from '/client/controllers/DocsCtrl.js';
+import ExamplesCtrl from '/client/controllers/ExamplesCtrl.js';
+import NotfoundCtrl from '/client/controllers/NotfoundCtrl.js';
 
 /// playground
-import Controller_hooksCtrl from './controllers/playground/Controller_hooksCtrl.js';
-import ModelCtrl from './controllers/playground/ModelCtrl.js';
-import View_rgIncCtrl from './controllers/playground/View_rgIncCtrl.js';
-import View_loadViewsCtrl from './controllers/playground/View_loadViewsCtrl.js';
-import View_lazyJSCtrl from './controllers/playground/View_lazyJSCtrl.js';
-import DataRgCtrl from './controllers/playground/DataRgCtrl.js';
-import DataRgListenersCtrl from './controllers/playground/DataRgListenersCtrl.js';
-import CookieCtrl from './controllers/playground/CookieCtrl.js';
-import FormCtrl from './controllers/playground/FormCtrl.js';
+import Controller_hooksCtrl from '/client/controllers/playground/Controller_hooksCtrl.js';
+import ModelCtrl from '/client/controllers/playground/ModelCtrl.js';
+import View_rgIncCtrl from '/client/controllers/playground/View_rgIncCtrl.js';
+import View_loadViewsCtrl from '/client/controllers/playground/View_loadViewsCtrl.js';
+import View_lazyJSCtrl from '/client/controllers/playground/View_lazyJSCtrl.js';
+import DataRgCtrl from '/client/controllers/playground/DataRgCtrl.js';
+import DataRgListenersCtrl from '/client/controllers/playground/DataRgListenersCtrl.js';
+import CookieCtrl from '/client/controllers/playground/CookieCtrl.js';
+import FormCtrl from '/client/controllers/playground/FormCtrl.js';
 
-import LoginCtrl from './controllers/playground/LoginCtrl.js';
-import LoginokCtrl from './controllers/playground/LoginokCtrl.js';
+import LoginCtrl from '/client/controllers/playground/LoginCtrl.js';
+import LoginokCtrl from '/client/controllers/playground/LoginokCtrl.js';
 
-import Navig1Ctrl from './controllers/playground/Navig1Ctrl.js';
-import Navig2Ctrl from './controllers/playground/Navig2Ctrl.js';
+import Navig1Ctrl from '/client/controllers/playground/Navig1Ctrl.js';
+import Navig2Ctrl from '/client/controllers/playground/Navig2Ctrl.js';
 
 
 

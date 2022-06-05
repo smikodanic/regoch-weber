@@ -304,7 +304,7 @@ class View extends DataRg {
    * @returns {object}
    */
   async fetchRemoteView(viewPath, cssSel) {
-    const path = `/views/${viewPath}`; // /views/pages/home/main.html
+    const path = `/client/views/${viewPath}`; // /client/views/pages/home/main.html
     const url = new URL(path, this.$baseURIhost).toString(); // resolve the URL
     const answer = await this.$httpClient.askHTML(url, cssSel);
     const content = answer.res.content;

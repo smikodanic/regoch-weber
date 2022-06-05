@@ -1,4 +1,4 @@
-import { Controller } from '../../sys/index.js';
+import { Controller } from '/sys/index.js';
 
 
 class QuickstartCtrl extends Controller {

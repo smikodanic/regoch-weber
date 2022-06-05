@@ -13,13 +13,10 @@ class HTTPServer {
    ** httpOpts:
    * - port:number - HTTP Server port number
    * - timeout:number - ms of inactivity after ws will be closed. If 0 then the ws will never close. Default is 5 minute
-   * - indexFile:string - index html file, default "index.html"
-   * - clientDir:string - directory with the dist static files: html, css, js
-   * - assetsDir:string - directory with the assets static files: img, font, ...
    * - acceptEncoding:string - gzip or deflate
    * - headers:object - custom headers
    * - debug:boolean - print debug messages
-   * @param  {object} httpOpts - options {port, timeout, clientDir, indexFile, assetsDir, acceptEncoding, headers, debug}
+   * @param  {object} httpOpts - options {port, timeout, acceptEncoding, headers, debug}
    * @returns {void}
    */
   constructor(httpOpts) {
@@ -28,9 +25,6 @@ class HTTPServer {
       this.httpOpts = httpOpts;
       if (!this.httpOpts.port) { throw new Error('The server port is not defined.'); }
       else if (this.httpOpts.timeout === undefined) { this.httpOpts.timeout = 5 * 60 * 1000; }
-      else if (!this.httpOpts.indexFile) { throw new Error('Parameter "indexFile" is not defined.'); }
-      else if (!this.httpOpts.clientDir) { throw new Error('Parameter "clientDir" is not defined.'); }
-      else if (!this.httpOpts.assetsDir) { throw new Error('Parameter "assetsDir" is not defined.'); }
       else if (!this.httpOpts.headers) { this.httpOpts.headers = []; }
     } else {
       throw new Error('HTTP Server options are not defined.');
@@ -63,6 +57,7 @@ class HTTPServer {
         ico: 'image/x-icon',
         svg: 'image/svg+xml',
         js: 'application/javascript',
+        json: 'application/json',
         mp4: 'video/mp4',
         woff: 'font/woff',
         woff2: 'font/woff2',
@@ -88,6 +83,7 @@ class HTTPServer {
       else if (/^png$/.test(fileExt)) { contentType = mime.png; encoding = 'binary'; }
       else if (/^ico$/.test(fileExt)) { contentType = mime.ico; encoding = 'binary'; }
       else if (/^js$/.test(fileExt)) { contentType = mime.js; encoding = 'utf8'; }
+      else if (/^json$/.test(fileExt)) { contentType = mime.json; encoding = 'utf8'; }
       else if (/^mp4$/.test(fileExt)) { contentType = mime.mp4; encoding = 'binary'; }
       else if (/^woff$/.test(fileExt)) { contentType = mime.woff; encoding = 'binary'; }
       else if (/^woff2$/.test(fileExt)) { contentType = mime.woff2; encoding = 'binary'; }
@@ -97,20 +93,13 @@ class HTTPServer {
 
 
       // define file path
-      let filePath;
-      if (!fileExt) { // if request doesn't contain file extension, for example / or /some/thing/ request index.html
-        const reqFile = this.httpOpts.indexFile || 'index.html';
-        filePath = path.join(process.cwd(), reqFile);
-      } else if (/^\/assets\//.test(urlNoQuery)) { // if request contains /assets/
-        const reqFile = urlNoQuery;
-        filePath = path.join(process.cwd(), this.httpOpts.assetsDir, '../', reqFile);
-      } else if (/^\/sys\//.test(urlNoQuery)) { // if request contains /sys/
-        const reqFile = urlNoQuery;
-        filePath = path.join(process.cwd(), this.httpOpts.sysDir, '../', reqFile);
-      } else { // if there's file extension for example /script.js or /some/style.css
-        const reqFile = urlNoQuery;
-        filePath = path.join(process.cwd(), this.httpOpts.clientDir, reqFile);
+      let reqFile;
+      if (!fileExt) { // if request doesn't contain file extension, for example / or /some/thing/ request app.html
+        reqFile = '/client/app.html';
+      } else {
+        reqFile = urlNoQuery;
       }
+      const filePath = path.join(process.cwd(), reqFile);
 
       // send response to the client
       this.sendResponse(res, req, contentType, filePath);

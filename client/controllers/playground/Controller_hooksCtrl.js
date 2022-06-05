@@ -1,4 +1,4 @@
-import { Controller, syslib } from '../../sys/index.js';
+import { Controller, syslib } from '/sys/index.js';
 
 
 class Controller_hooksCtrl extends Controller {

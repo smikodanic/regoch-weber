@@ -1,4 +1,4 @@
-import { Controller, syslib } from '../../sys/index.js';
+import { Controller } from '/sys/index.js';
 
 
 class View_rgIncCtrl extends Controller {

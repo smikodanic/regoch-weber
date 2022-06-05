@@ -1,14 +1,8 @@
-const HTTPServer = require('../sys/server/HTTPServer');
-
-
 ///// HTTP Server /////
+const HTTPServer = require('../sys/server/HTTPServer');
 const httpOpts = {
-  port: 3333,
+  port: process.env.PORT || 3333, // change port with  $ export PORT = 3330  and remove it with  $ unset PORT
   timeout: 5 * 60 * 1000, // if 0 never timeout
-  indexFile: '/client/app.html',
-  clientDir: '/client/',
-  assetsDir: '/client/assets',
-  sysDir: '/sys',
   acceptEncoding: 'gzip', // gzip, deflate or ''
   headers: {
     // CORS Headers
@@ -17,7 +11,28 @@ const httpOpts = {
     'Access-Control-Allow-Methods': 'GET', // 'Access-Control-Allow-Methods': 'GET, POST, PUT, PATCH, DELETE, HEAD',
     'Access-Control-Max-Age': '3600'
   },
-  debug: true
+  debug: false
 };
 const httpServer = new HTTPServer(httpOpts);
 httpServer.start();
+
+
+
+
+///// Proxy Server /////
+/*
+const ProxyServer = require('../sys/server/HTTPServer');
+const proxyOpts = {
+  port: 3335,
+  request_host: '127.0.0.1',
+  request_port: '4400', // HTTP Server port, 4400
+  regexpUA: /bot|spider|crawl|curl|lynx|wget/i, // open URL via browser when user agent contains this regular expression
+  debug: false
+};
+
+const browserOpts = { headless: true, width: 1300, height: 900, position: '700,20' };
+
+const proxyServer = new ProxyServer(proxyOpts, browserOpts);
+proxyServer.openBrowser();
+proxyServer.start();
+*/
