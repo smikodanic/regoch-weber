@@ -93,25 +93,29 @@ class HTTPServer {
 
 
       // define file path
-      let reqFile;
-      if (!fileExt) { // if request doesn't contain file extension, for example / or /some/thing/ request app.html
-        reqFile = '/client/app.html';
+      let filePath;
+      if (!fileExt) { // if request doesn't contain file extension, for example / or /some/thing/ or /client/controllers/MyCtrl
+        if (/^\/client\/|\/sys\//.test(urlNoQuery)) { // if request starts with 'client' or 'sys' and doesn't have file extension return error, for example /client/controllers/MyCtrl
+          const errMsg = `NOT FOUND: "${urlNoQuery}"`;
+          console.log('\n\x1b[31m' + errMsg + '\x1b[0m');
+          res.writeHead(404, { 'X-Error': errMsg });
+          res.end();
+          return;
+        }
+        filePath = path.join(process.cwd(), '/client/app.html');
       } else {
-        reqFile = urlNoQuery;
+        filePath = path.join(process.cwd(), urlNoQuery);
       }
-      const filePath = path.join(process.cwd(), reqFile);
-
-      // send response to the client
-      this.sendResponse(res, req, contentType, filePath);
 
       // debugging
       if (this.httpOpts.debug) {
-        console.log('\n\nrequested URL:: ', reqURL);
-        console.log('urlNoQuery:: ', urlNoQuery);
-        console.log('fileExt::', fileExt, 'fileExt2::', fileExt2, ' contentType::', contentType, ' encoding::', encoding);
+        console.log('\nrequested URL::', reqURL, ', urlNoQuery::', urlNoQuery);
+        console.log('fileExt::', fileExt, ', fileExt2::', fileExt2, ', contentType::', contentType, ', encoding::', encoding, ', acceptEncoding:: ', this.httpOpts.acceptEncoding);
         console.log('filePath:: ', filePath);
-        console.log('acceptEncoding:: ', this.httpOpts.acceptEncoding);
       }
+
+      // send response to the client
+      this.sendResponse(res, req, contentType, filePath);
 
     });
 
