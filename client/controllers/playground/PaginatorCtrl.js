@@ -15,7 +15,7 @@ class PaginatorCtrl extends Controller {
 
 
   async init(trx) {
-    this.paginator = new syslib.Paginator(5, ['w3-gray']);
+    this.paginator = new syslib.Paginator(3, ['w3-gray']);
     await this.openPage(1);
   }
 
@@ -29,7 +29,7 @@ class PaginatorCtrl extends Controller {
     if (!!element) { element.blur(); }
 
     this.currentPage = +pageNum;
-    this.itemsPerPage = 10;
+    this.itemsPerPage = 5;
     await this.getResults();
 
     const { pageLinks, pagesTotal } = await this.paginator.page(pageNum, this.$model.itemsTotal, this.itemsPerPage);

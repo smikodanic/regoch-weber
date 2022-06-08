@@ -3,6 +3,9 @@
 
   <!-- results -->
   <div class="w3-container w3-margin" data-rg-flicker>
+    <div>
+      <h3>Results: <small><span data-rg-print="results.length"></span> of <span data-rg-print="itemsTotal"></span></small></h3>
+    </div>
     <div data-rg-for="results">
       <span class="w3-text-green w3-margin-right" data-rg-echo="evalMath((this.currentPage - 1) * this.itemsPerPage + $i0 + 1)."></span>
       <span class="w3-margin-right" data-rg-print="results.$i0.name"></span> &middot;
