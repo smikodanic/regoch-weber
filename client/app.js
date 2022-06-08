@@ -30,6 +30,8 @@ import LoginokCtrl from '/client/controllers/playground/LoginokCtrl.js';
 import Navig1Ctrl from '/client/controllers/playground/Navig1Ctrl.js';
 import Navig2Ctrl from '/client/controllers/playground/Navig2Ctrl.js';
 
+import PaginatorCtrl from '/client/controllers/playground/PaginatorCtrl.js';
+
 
 
 
@@ -57,6 +59,8 @@ const routes = [
   ['when', '/playground/navig1', 'Navig1Ctrl'],
   ['when', '/playground/navig2', 'Navig2Ctrl'],
   ['redirect', '/playground/navig3', '/playground/navig1'],
+
+  ['when', '/playground/paginator', 'PaginatorCtrl'],
 
   ['notfound', 'NotfoundCtrl'],
 ];
@@ -95,8 +99,9 @@ app
     LoginokCtrl,
 
     Navig1Ctrl,
-    Navig2Ctrl
+    Navig2Ctrl,
 
+    PaginatorCtrl
   ])
   .auth(auth) // needed for route authGuards
   // .preflight(pref1, pref2)
