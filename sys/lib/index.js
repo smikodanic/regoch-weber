@@ -7,6 +7,7 @@ import eventEmitter from './eventEmitter.js';
 import Form from './Form.js';
 import HTTPClient from './HTTPClient.js';
 import navig from './navig.js';
+import Paginator from './Paginator.js';
 import util from './util.js';
 
 
@@ -17,5 +18,6 @@ export {
   Form,
   HTTPClient,
   navig,
+  Paginator,
   util
 };
