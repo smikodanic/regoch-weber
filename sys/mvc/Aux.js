@@ -17,7 +17,7 @@ class Aux {
     const prop1 = propSplitted[0]; // company
     let val = this[prop1]; // controller property value
     propSplitted.forEach((prop, key) => {
-      if (key !== 0 && !!val) { val = val[prop]; }
+      if (key !== 0 && val != undefined) { val = val[prop]; }
     });
     return val;
   }
