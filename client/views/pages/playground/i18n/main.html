@@ -1,0 +1,18 @@
+<main class="w3-container w3-margin">
+  <h1>i18n Test</h1>
+  Change language with <b>app.i18n('en')</b> in <i>app.js</i> file.
+
+  <div class="w3-container w3-margin">
+    <label>Select language</label>
+    <select data-rg-set="lang" data-rg-change="changeLang()">
+      <option value="en">en</option>
+      <option value="de">de</option>
+      <option value="hr">hr</option>
+    </select>
+  </div>
+
+
+  <p data-rg-print="$i18n.title @@keep">My Title</p> <!-- In case that $i18n.tite is undefined @@keep will keep 'My Title' -->
+  <p data-rg-print="$i18n.shop">My Shop</p>
+
+</main>

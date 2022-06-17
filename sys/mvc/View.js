@@ -425,7 +425,7 @@ class View extends DataRg {
   /**
    * Create <link rel="stylesheet"> tags and load CSS.
    * Usually use it in the prerender() controller hook.
-   * @param {string[]} urls - array of CSS file URLs
+   * @param {string[]} urls - array of CSS file URLs, ['/client/assets/css/common.css', '/client/assets/css/home.css']
    */
   loadCSS(urls) {
     if (!urls) { return; }
@@ -446,7 +446,7 @@ class View extends DataRg {
   /**
    * Remove <link rel="stylesheet"> tags and unload CSS.
    * Usually use it in the prerender() controller hook.
-   * @param {string[]} urls - array of CSS file URLs
+   * @param {string[]} urls - array of CSS file URLs, ['/client/assets/css/common.css', '/client/assets/css/home.css'] or just ['/client/assets/css/'] to remove all folder files
    */
   unloadCSS(urls) {
     if (!urls) { return; }

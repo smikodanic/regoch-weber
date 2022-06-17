@@ -31,6 +31,7 @@ import Navig1Ctrl from '/client/controllers/playground/Navig1Ctrl.js';
 import Navig2Ctrl from '/client/controllers/playground/Navig2Ctrl.js';
 
 import PaginatorCtrl from '/client/controllers/playground/PaginatorCtrl.js';
+import I18nCtrl from '/client/controllers/playground/I18nCtrl.js';
 
 
 
@@ -61,6 +62,7 @@ const routes = [
   ['redirect', '/playground/navig3', '/playground/navig1'],
 
   ['when', '/playground/paginator', 'PaginatorCtrl'],
+  ['when', '/playground/i18n', 'I18nCtrl'],
 
   ['notfound', 'NotfoundCtrl'],
 ];
@@ -85,6 +87,7 @@ app
     ExamplesCtrl,
     NotfoundCtrl,
 
+    // playground controllers
     Controller_hooksCtrl,
     ModelCtrl,
     View_rgIncCtrl,
@@ -101,7 +104,8 @@ app
     Navig1Ctrl,
     Navig2Ctrl,
 
-    PaginatorCtrl
+    PaginatorCtrl,
+    I18nCtrl
   ])
   .auth(auth) // needed for route authGuards
   // .preflight(pref1, pref2)
