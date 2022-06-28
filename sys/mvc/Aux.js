@@ -11,7 +11,7 @@ class Aux {
    */
   _getControllerValue(prop) {
     const reg = new RegExp(`\\(${this.$rg.varnameChars}\\)`);
-    if (reg.test(prop)) { prop = this._solveControllerName(prop); } // solve round brackets
+    if (reg.test(prop)) { prop = '$model.' + this._solveControllerName(prop); } // solve round brackets
 
     const propSplitted = prop.split('.'); // ['company', 'name']
     const prop1 = propSplitted[0]; // company
