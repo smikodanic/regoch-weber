@@ -15,7 +15,7 @@ class AntiflickCtrl extends Controller {
   }
 
   async init(trx) {
-    await syslib.util.sleep(5500);
+    await syslib.util.sleep(8000);
     this.$model.showBtn = true;
   }
 

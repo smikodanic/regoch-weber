@@ -273,11 +273,61 @@ class View extends DataRg {
    * @param {boolean} bool - true or false
    */
   showViews(bool) {
-    if (bool) {
-      document.body.style.visibility = 'visible';
-    } else {
-      document.body.style.visibility = 'hidden';
+    // hide/show all body child tag nodes
+    for (const childNode of document.body.childNodes) {
+      if (childNode.nodeType === 1) {
+        if (bool) { childNode.style.visibility = 'visible'; }
+        else { childNode.style.visibility = 'hidden'; }
+      }
     }
+
+    // hide/show loading spinner
+    const divElem = document.createElement('div');
+    divElem.setAttribute('data-rg-spinner-showviews', '');
+    const styleScoped = `
+        <span>
+          <style scoped>
+            [data-rg-spinner-showviews]>span:after {
+              content: '';
+              display: block;
+              font-size: 13px;
+              width: 1em;
+              height: 1em;
+              margin-top: 55px;
+              margin-left: auto;
+              margin-right: auto;
+              animation: spinner 1500ms infinite linear;
+              border-radius: 0.5em;
+              box-shadow: #BEBEBE 1.5em 0 0 0, #BEBEBE 1.1em 1.1em 0 0, #BEBEBE 0 1.5em 0 0, #BEBEBE -1.1em 1.1em 0 0, #BEBEBE -1.5em 0 0 0, #BEBEBE -1.1em -1.1em 0 0, #BEBEBE 0 -1.5em 0 0, #BEBEBE 1.1em -1.1em 0 0;
+            }
+            @-webkit-keyframes spinner {
+              0% { transform: rotate(0deg);}
+              100% { transform: rotate(360deg); }
+            }
+            @-moz-keyframes spinner {
+              0% { transform: rotate(0deg); }
+              100% { transform: rotate(360deg); }
+            }
+            @-o-keyframes spinner {
+              0% { transform: rotate(0deg); }
+              100% { transform: rotate(360deg); }
+            }
+            @keyframes spinner {
+              0% { transform: rotate(0deg); }
+              100% { transform: rotate(360deg); }
+            }
+          </style>
+        </span>
+        `;
+
+    divElem.insertAdjacentHTML('beforeend', styleScoped);
+    if (bool) {
+      const foundDivElem = document.querySelector('[data-rg-spinner-showviews]');
+      document.body.removeChild(foundDivElem);
+    } else {
+      document.body.prepend(divElem);
+    }
+
   }
 
 
