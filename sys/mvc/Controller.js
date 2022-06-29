@@ -78,12 +78,10 @@ class Controller extends Model {
     // controller processes
     try { await this.loader(trx); } catch (err) { console.error(err); }
     await this.rgInc(true);
-    this.rgFlicker(false);
     this.rgSetinitial(); // parse data-rg-setinitial
     try { await this.init(trx); } catch (err) { console.error(err); }
     try { await this.rend(trx); } catch (err) { console.error(err); }
     try { await this.postrend(trx); } catch (err) { console.error(err); }
-    this.rgFlicker(true);
 
     // post-view processes
     await this.rgLazyjs();

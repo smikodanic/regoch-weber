@@ -792,30 +792,6 @@ class DataRg extends DataRgListeners {
 
 
   /**
-   * data-rg-flicker
-   * Parse the "data-rg-flicker" attribute. Initially when controller starts, hide innerHTML with data-rg-flicker and show it when render is finished.
-   * It will prevent element flickering during render process.
-   * @param {string} bool - to show or hide the element
-   * @returns {void}
-   */
-  rgFlicker(bool) {
-    this._debug('rgFlicker', '--------- rgFlicker ------', 'navy', '#B6ECFF');
-
-    const attrName = 'data-rg-flicker';
-    const elems = this._listElements(attrName, '');
-    this._debug('rgFlicker', `found elements:: ${elems.length}`, 'navy');
-    if (!elems.length) { return; }
-
-    for (const elem of elems) {
-      if (bool) { elem.style.visibility = ''; }
-      else { elem.style.visibility = 'hidden'; }
-      this._debug('rgFlicker', `  ${bool} --> elem:: ${elem.localName}.${elem.className}`, 'navy');
-    }
-
-  }
-
-
-  /**
    * Parse the words with i18n> prefix and replace it with the corersponding word in /i18n/{lang}.json
    */
   rgI18n() {

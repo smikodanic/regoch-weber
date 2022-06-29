@@ -120,7 +120,6 @@ class View extends DataRg {
       // set "data-rg-cin" attribute which marks that the content is included in the data-rg-inc element and parse process is finished
       elem.setAttribute('data-rg-cin', '');
 
-
       // continue with the next parse iteration (when data-rg-inc elements are nested)
       if (/data-rg-inc/.test(str)) { await this.rgInc(false); }
 
@@ -424,7 +423,7 @@ class View extends DataRg {
   /************ CSS LOADERS *********/
   /**
    * Create <link rel="stylesheet"> tags and load CSS.
-   * Usually use it in the prerender() controller hook.
+   * Usually use it in the loader() controller hook.
    * @param {string[]} urls - array of CSS file URLs, ['/client/assets/css/common.css', '/client/assets/css/home.css']
    */
   loadCSS(urls) {
@@ -445,7 +444,7 @@ class View extends DataRg {
 
   /**
    * Remove <link rel="stylesheet"> tags and unload CSS.
-   * Usually use it in the prerender() controller hook.
+   * Usually use it in the loader() controller hook.
    * @param {string[]} urls - array of CSS file URLs, ['/client/assets/css/common.css', '/client/assets/css/home.css'] or just ['/client/assets/css/'] to remove all folder files
    */
   unloadCSS(urls) {
@@ -460,7 +459,7 @@ class View extends DataRg {
 
   /**
    * Append <style data-rg-ref="#reference"></style> tags in the <head>.
-   * Usually use it in the prerender() controller hook.
+   * Usually use it in the loader() controller hook.
    * @param {string} cssRules - CSS rules, for example: div {font-weight: bold; color:red;}
    * @param {string} ref - reference
    */
@@ -587,6 +586,7 @@ class View extends DataRg {
 
     return { elem, str, nodes };
   }
+
 
 
 
