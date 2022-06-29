@@ -1,6 +1,9 @@
 import { App, syslib } from '/sys/index.js';
-import env from './env.js';
+import viewsCached from '/client/_cache/views.js';
+import env from '/client/env.js';
 console.log('env::', env);
+// console.log('viewsCached::', viewsCached);
+
 
 // conf
 import { $debugOpts, authOpts } from '/client/conf/index.js';
@@ -31,6 +34,7 @@ import Navig1Ctrl from '/client/controllers/playground/Navig1Ctrl.js';
 import Navig2Ctrl from '/client/controllers/playground/Navig2Ctrl.js';
 
 import PaginatorCtrl from '/client/controllers/playground/PaginatorCtrl.js';
+import AntiflickCtrl from '/client/controllers/playground/AntiflickCtrl.js';
 import I18nCtrl from '/client/controllers/playground/I18nCtrl.js';
 
 
@@ -62,6 +66,7 @@ const routes = [
   ['redirect', '/playground/navig3', '/playground/navig1'],
 
   ['when', '/playground/paginator', 'PaginatorCtrl'],
+  ['when', '/playground/antiflick', 'AntiflickCtrl'],
   ['when', '/playground/i18n', 'I18nCtrl'],
 
   ['notfound', 'NotfoundCtrl'],
@@ -105,10 +110,12 @@ app
     Navig2Ctrl,
 
     PaginatorCtrl,
+    AntiflickCtrl,
     I18nCtrl
   ])
   .auth(auth) // needed for route authGuards
   // .preflight(pref1, pref2)
   // .postflight(postf1, postf2)
   .routes(routes)
+  .viewsCached(viewsCached)
   .debugger($debugOpts);

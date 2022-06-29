@@ -1,1 +1,4 @@
 node_modules
+client/_cache
+.vscode
+tests

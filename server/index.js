@@ -36,3 +36,13 @@ const proxyServer = new ProxyServer(proxyOpts, browserOpts);
 proxyServer.openBrowser();
 proxyServer.start();
 */
+
+
+
+////// Build Views Cache ////////
+const cache = require('../sys/server/cache');
+const files = [
+  'inc/navbar.html',
+  'inc/footer.html'
+];
+cache.views(files);
