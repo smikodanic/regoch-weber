@@ -266,6 +266,21 @@ class View extends DataRg {
   }
 
 
+  /**
+   * To show body content or not.
+   * This method is used internally in the Controller to prevent flicker effects.
+   * The HTML content in body tag shouldn't be shown until all data is not fetched in init() and all data-rg- elements are not rendered in rend().
+   * @param {boolean} bool - true or false
+   */
+  showViews(bool) {
+    if (bool) {
+      document.body.style.visibility = 'visible';
+    } else {
+      document.body.style.visibility = 'hidden';
+    }
+  }
+
+
 
 
   /*************** HTML CONTENT FETCHERS *****************/
