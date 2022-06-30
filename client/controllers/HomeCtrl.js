@@ -1,7 +1,6 @@
 import { Controller } from '/sys/index.js';
 
-
-class HomeCtrl extends Controller {
+class HomeCtrl extends regochWeber.sys.Controller {
 
   constructor(app) {
     super();

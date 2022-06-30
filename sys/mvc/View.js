@@ -5,7 +5,7 @@ class View extends DataRg {
 
   constructor() {
     super();
-    // window.regochGlob.viewsCached is defined by the App:controllerViewsCached()
+    // window.regochWeber.viewsCached is defined by the App:controllerViewsCached()
   }
 
 
@@ -55,7 +55,7 @@ class View extends DataRg {
 
       // Get HTML content. First try from the cached JSON and if it doesn't exist then request from the server.
       let nodes, str;
-      if (!!window && !!window.regochGlob && !!window.regochGlob.viewsCached && !!window.regochGlob.viewsCached[viewPath]) { // HTML content from the cached file /cache/views.json
+      if (!!window && !!window.regochWeber && !!window.regochWeber.viewsCached && !!window.regochWeber.viewsCached[viewPath]) { // HTML content from the cached file /cache/views.json
         const cnt = this.fetchCachedView(viewPath, cssSel);
         nodes = cnt.nodes;
         str = cnt.str;
@@ -152,7 +152,7 @@ class View extends DataRg {
 
     // Get HTML content. First try from the cached JSON and if it doesn't exist then request from the server.
     let nodes, str;
-    if (!!window && !!window.regochGlob && !!window.regochGlob.viewsCached && !!window.regochGlob.viewsCached[viewPath]) { // HTML content from the cached file /cache/views.json
+    if (!!window && !!window.regochWeber && !!window.regochWeber.viewsCached && !!window.regochWeber.viewsCached[viewPath]) { // HTML content from the cached file /cache/views.json
       const cnt = this.fetchCachedView(viewPath, cssSel);
       nodes = cnt.nodes;
       str = cnt.str;
@@ -343,14 +343,14 @@ class View extends DataRg {
   fetchCachedView(viewPath, cssSel) {
     // convert HTML string to Document
     const parser = new DOMParser();
-    const doc = parser.parseFromString(window.regochGlob.viewsCached[viewPath], 'text/html');
+    const doc = parser.parseFromString(window.regochWeber.viewsCached[viewPath], 'text/html');
 
     // define nodes and string
     let nodes; // array of DOM nodes (Node[])
     let str; // HTML content as string (string)
     if (!cssSel) {
-      nodes = /\<title|\<meta|\<link\<base/.test(window.regochGlob.viewsCached[viewPath]) ? doc.head.childNodes : doc.body.childNodes;
-      str = window.regochGlob.viewsCached[viewPath];
+      nodes = /\<title|\<meta|\<link\<base/.test(window.regochWeber.viewsCached[viewPath]) ? doc.head.childNodes : doc.body.childNodes;
+      str = window.regochWeber.viewsCached[viewPath];
     } else {
       const elem = doc.querySelector(cssSel);
       nodes = [elem];
@@ -604,7 +604,7 @@ class View extends DataRg {
 
     // Get HTML content. First try from the cached JSON and if it doesn't exist then request from the server.
     let nodes, str;
-    if (!!window.regochGlob.viewsCached[viewPath]) { // HTML content from the cached file /cache/views.json
+    if (!!window.regochWeber.viewsCached[viewPath]) { // HTML content from the cached file /cache/views.json
       const cnt = this.fetchCachedView(viewPath);
       nodes = cnt.nodes;
       str = cnt.str;

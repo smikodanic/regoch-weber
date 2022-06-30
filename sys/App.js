@@ -3,11 +3,14 @@ import navig from './lib/navig.js';
 import HTTPClient from './lib/HTTPClient.js';
 import debugOpts from './conf/$debugOpts.js';
 
+window.regochWeber = {}; // init global variable
+
+
+
 class App {
 
   constructor() {
     this.ctrls = {}; // { ctrlName1: {}, ctrlName2: {} }
-    window.regochGlob = {}; // init global variable
     this.$debugOpts = debugOpts; // object with the debug parameters -- {rgFor: true, rgIf: false}
   }
 
@@ -80,7 +83,7 @@ class App {
    */
   fridge(name, val) {
     const controllersCount = Object.keys(this.ctrls).length;
-    if (controllersCount === 0) { throw new Error(`The $fridge property "${name}" should be defined after the method controllersInject().`); }
+    if (controllersCount === 0) { throw new Error(`The $fridge property "${name}" should be defined after the method controllers().`); }
     for (const ctrlName of Object.keys(this.ctrls)) { this.ctrls[ctrlName]['$fridge'][name] = val; }
     return this;
   }
@@ -194,7 +197,7 @@ class App {
    */
   viewsCached(viewsCached) {
     // this.controllerProp('viewsCached', viewsCached);
-    window.regochGlob.viewsCached = viewsCached;
+    window.regochWeber.viewsCached = viewsCached;
     return this;
   }
 

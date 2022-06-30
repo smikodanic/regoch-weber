@@ -22,6 +22,12 @@ browser single page applications, mobile applications, browser extensions, elect
 - Cordova mobile applications
 
 
+## Installation
+```bash
+$ npm install regoch-weber
+```
+
+
 ## Download the framework
 ```bash
 $ git clone https://github.com/smikodanic/regoch-weber.git <projectName>
@@ -32,6 +38,52 @@ $ rm -rg .git
 The files with small example app is downloaded.
 Now you can start to build your app by changing HTML, CSS and JS files in "client" folders.
 In most cases there's no need to change files other files in other folders.
+
+
+
+## Webpack /sys
+Bundle and minify /sys/ files.
+```bash
+$ npx webpack --config sys/webpack-sys.config.js
+```
+After that include minified file in the client/app.html
+```html
+<body>
+  <div data-rg-view="#layout"></div>
+
+  <script src="/sys/index.min.js"></script>
+</body>
+```
+And use **regochWeber** global variable.
+```js
+class HomeCtrl extends regochWeber.sys.Controller {
+  ...
+}
+  ```
+
+
+
+## Webpack /client
+Import /sys files and bundle /client files with webpack.
+Bundle whole project.
+```bash
+$ npx webpack --config client/webpack-client.config.js
+```
+
+Then use it in the app.html
+```html
+<body>
+  <div data-rg-view="#layout"></div>
+
+  <script src="/client/app.min.js"></script>
+</body>
+```
+
+
+
+
+
+
 
 ## Documentation
 [http://www.regoch.org/weber](http://www.regoch.org/weber)

@@ -1,6 +1,7 @@
 {
 	"globals": {
-    "$": true
+    "$": true,
+    "regochWeber": true
 	},
 	"env": {
 		"browser": true,
