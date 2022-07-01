@@ -13,9 +13,9 @@ class Auth {
    * authOpts:
    {
     apiLogin :string,       // API login URL: http://127.0.0.1:8001/users/login
-    afterGoodLogin :string, // redirect after succesful login: '/{loggedUserRole}'
-    afterBadLogin :string,  // redirect after unsuccesful login: '/login'
-    afterLogout :string     // URL after logout: '/login'
+    afterGoodLogin :string, // redirect after succesful login: '/{loggedUserRole}', (empty string => dont do anything, location.href => reload same URL)
+    afterBadLogin :string,  // redirect after unsuccesful login: '/login', (empty string => dont do anything, location.href => reload same URL)
+    afterLogout :string     // URL after logout: '/login', (empty string => dont do anything, location.href => reload same URL)
    }
    * NOTICE: If afterGoodLogin, afterBadLogin, afterLogout has falsy value then the URL will stay same i.e. location.href.
    * @param {object} authOpts - auth options
@@ -76,7 +76,7 @@ class Auth {
 
       // redirect to URL
       const afterGoodLoginURL = this._correctURL(this.authOpts.afterGoodLogin, apiResp.loggedUser);
-      navig.goto(afterGoodLoginURL);
+      if (!!afterGoodLoginURL) { navig.goto(afterGoodLoginURL); }
 
       return apiResp;
 
@@ -100,7 +100,7 @@ class Auth {
     this.loggedUser = undefined; // remove class property
     await new Promise(r => setTimeout(r, ms));
     const afterLogoutURL = this._correctURL(this.authOpts.afterLogout, null);
-    navig.goto(afterLogoutURL); // change URL
+    if (!!afterLogoutURL) { navig.goto(afterLogoutURL); } // change URL
   }
 
 
@@ -149,7 +149,7 @@ class Auth {
     // redirect to URL
     if (!!loggedUser && !!loggedUser.username) {
       const afterGoodLoginURL = this._correctURL(this.authOpts.afterGoodLogin, loggedUser);
-      navig.goto(afterGoodLoginURL);
+      if (!!afterGoodLoginURL) { navig.goto(afterGoodLoginURL); }
       console.log(`%c AuthWarn:: Autologin to ${afterGoodLoginURL} is triggered.`, `color:Maroon; background:LightYellow`);
     }
   }
@@ -166,7 +166,7 @@ class Auth {
     // redirect to afterBadLogin URL
     if (!isAlreadyLogged) {
       const afterBadLoginURL = this._correctURL(this.authOpts.afterBadLogin, loggedUser);
-      navig.goto(afterBadLoginURL);
+      if (!!afterBadLoginURL) { navig.goto(afterBadLoginURL); }
       throw new Error('AuthWarn:: This route is blocked because the user is not logged in.');
     }
   }
@@ -191,7 +191,7 @@ class Auth {
 
     if (!urlHasRole) {
       const afterBadLoginURL = this._correctURL(this.authOpts.afterBadLogin, loggedUser);
-      navig.goto(afterBadLoginURL);
+      if (!!afterBadLoginURL) { navig.goto(afterBadLoginURL); }
       throw new Error('AuthWarn:: This route is blocked because the user doesn\'t have valid role.');
     }
   }
@@ -209,9 +209,9 @@ class Auth {
   _correctURL(url, loggedUser) {
     let url_corrected;
     if (!!loggedUser && !!loggedUser.role) {
-      url_corrected = !!url ? url.replace('{loggedUserRole}', loggedUser.role) : location.href;
+      url_corrected = !!url ? url.replace('{loggedUserRole}', loggedUser.role) : '';
     } else {
-      url_corrected = !!url ? url : location.href;
+      url_corrected = !!url ? url : '';
     }
     return url_corrected;
   }
