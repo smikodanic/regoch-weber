@@ -1,6 +1,6 @@
-const http = require('http');
-const os = require('os');
-const puppeteer = require('puppeteer');
+import http from 'http';
+import os from 'os';
+import puppeteer from 'puppeteer';
 
 
 
@@ -243,4 +243,4 @@ class ProxyServer {
 
 
 
-module.exports = ProxyServer;
+export default ProxyServer;

@@ -1,4 +1,4 @@
-node_modules
-client/_cache
-.vscode
-tests
+/.vscode/
+/node_modules/
+/client/_cache/
+/tests/

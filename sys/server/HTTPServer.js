@@ -1,7 +1,7 @@
-const http = require('http');
-const fs = require('fs');
-const path = require('path');
-const zlib = require('zlib');
+import http from 'http';
+import fs from 'fs';
+import path from 'path';
+import zlib from 'zlib';
 
 
 /**
@@ -254,4 +254,4 @@ class HTTPServer {
 
 
 
-module.exports = HTTPServer;
+export default HTTPServer;

@@ -1,5 +1,5 @@
 /**
- * Run $ npx webpack --config sys/webpack-sys.config.js
+ * Run $ npx webpack --config client/webpack-client.config.js
  * from the project's root folder.
  */
 const path = require('path');

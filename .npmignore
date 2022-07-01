@@ -1,5 +1,5 @@
-.vscode
-client
-node_modules
-server
-tests
+/.vscode/
+/client/
+/node_modules/
+/server/
+/tests/

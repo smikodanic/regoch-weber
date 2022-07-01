@@ -1,5 +1,7 @@
+import { HTTPServer, cache } from '../sys/server/index.js';
+
+
 ///// HTTP Server /////
-const HTTPServer = require('../sys/server/HTTPServer');
 const httpOpts = {
   port: process.env.PORT || 3333, // change port with  $ export PORT = 3330  and remove it with  $ unset PORT
   timeout: 5 * 60 * 1000, // if 0 never timeout
@@ -40,7 +42,6 @@ proxyServer.start();
 
 
 ////// Build Views Cache ////////
-const cache = require('../sys/server/cache');
 const files = [
   'inc/navbar.html',
   'inc/footer.html'
