@@ -38,7 +38,7 @@ class App {
    */
   _controllerProp(name, val) {
     const controllersCount = Object.keys(this.ctrls).length;
-    if (controllersCount === 0) { throw new Error(`The controller property "${name}" should be defined after the method controllersInject().`); }
+    if (controllersCount === 0) { throw new Error(`The controller property "${name}" should be defined after the method controllers().`); }
     for (const ctrlName of Object.keys(this.ctrls)) { this.ctrls[ctrlName][name] = val; }
     return this;
   }
@@ -116,6 +116,7 @@ class App {
   /**
    * Define preflight functions which will be executed on every route, before the controller processing() i.e. before loader().
    * Never define $model in the preflight function because it will triger render() before loader().
+   * Define it before the routes() method.
    * @param {Function[]} funcs - array of preflight functions (app, trx) => { ... }
    * @returns {App}
    */
@@ -128,6 +129,7 @@ class App {
   /**
    * Define postflight functions which will be executed on every route, after the controller processing(), i.e. after the postrend().
    * Here the $model can be defined (what wil trigger the render()).
+   * Define it before the routes() method.
    * @param {Function[]} funcs - array of preflight functions (app, trx) => { ... }
    * @returns {App}
    */

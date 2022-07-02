@@ -19,9 +19,10 @@
   "main": "./sys/index.js",
   "type": "module",
   "scripts": {
-    "inst": "rm -rf node_modules && rm package-lock.json && npm install",
-    "dev": "npx webpack --config client/webpack-client.config.cjs",
+    "dev-inst": "rm -rf node_modules && rm package-lock.json && npm install",
     "dev-server": "nodemon server",
+    "dev": "npx webpack --config client/webpack-client.config.cjs",
+    "deploy-inst": "rm -rf node_modules && rm package-lock.json && npm install --production",
     "deploy": "pm2 start server --name weber-app",
     "bundle-sys": "npx webpack --config sys/webpack-sys.config.cjs"
   },

@@ -79,13 +79,11 @@ class Controller extends Model {
     this.proxifyModel(); // set $model as proxy object
 
     // controller processes
-    this.showViews(false);
     try { await this.loader(trx); } catch (err) { console.error(err); }
     await this.rgInc(true);
     this.rgSetinitial(); // parse data-rg-setinitial
     try { await this.init(trx); } catch (err) { console.error(err); }
     try { await this.rend(trx); } catch (err) { console.error(err); }
-    this.showViews(true);
     try { await this.postrend(trx); } catch (err) { console.error(err); }
 
     // post-view processes

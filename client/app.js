@@ -79,11 +79,14 @@ const auth = new syslib.Auth(authOpts);
 // preflight/postflight
 const pref1 = async (trx) => { console.log('PREFLIGHT 1 - trx::', trx); };
 const pref2 = async (trx) => { console.log('PREFLIGHT 2 - trx::', trx); };
+const pref3 = (trx) => { trx.ctrl.showViews(false, true); };
 const postf1 = async (trx) => { console.log('POSTFLIGHT 1 - trx::', trx); };
 const postf2 = async (trx) => { console.log('POSTFLIGHT 2 - trx::', trx); };
+const postf3 = (trx) => { trx.ctrl.showViews(true, true); };
 
 // app
 const app = new App();
+
 app
   .controllers([
     HomeCtrl,
@@ -112,10 +115,14 @@ app
     PaginatorCtrl,
     AntiflickCtrl,
     I18nCtrl
-  ])
+  ]);
+
+app
   .auth(auth) // needed for route authGuards
-  // .preflight(pref1, pref2)
-  // .postflight(postf1, postf2)
-  .routes(routes)
-  .viewsCached(viewsCached)
+  // .preflight(pref3)
+  // .postflight(postf3)
   .debugger($debugOpts);
+
+app
+  .routes(routes)
+  .viewsCached(viewsCached);

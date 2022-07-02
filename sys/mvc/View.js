@@ -267,12 +267,23 @@ class View extends DataRg {
 
 
   /**
-   * To show body content or not.
-   * This method is used internally in the Controller to prevent flicker effects.
-   * The HTML content in body tag shouldn't be shown until all data is not fetched in init() and all data-rg- elements are not rendered in rend().
+   * To show body content or not. This method is used to prevent flicker effects.
+   * The HTML content in body tag shouldn't be visible until all data is not fetched in init() and all data-rg- elements are not rendered in rend().
+   * Use this method in the controller's loader(), init(), postrend() --> this.showViews(true|false);
+   * Also it can be used in the app.preflight() and app.postflight() to affect all controllers.
    * @param {boolean} bool - true or false
+   * @param {boolean} spinner - true or false, to show the spinner during transition time
    */
-  showViews(bool) {
+  showViews(bool, spinner) {
+    /*** without spinner - whole body will be hidden ***/
+    if (!spinner) {
+      if (bool) { document.body.style.visibility = 'visible'; }
+      else { document.body.style.visibility = 'hidden'; }
+      return;
+    }
+
+
+    /*** with spinner - only body child tags will be hidden***/
     // hide/show all body child tag nodes
     for (const childNode of document.body.childNodes) {
       if (childNode.nodeType === 1) {
@@ -327,8 +338,8 @@ class View extends DataRg {
     } else {
       document.body.prepend(divElem);
     }
-
   }
+
 
 
 
