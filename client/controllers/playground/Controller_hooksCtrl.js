@@ -12,7 +12,7 @@ class Controller_hooksCtrl extends Controller {
     console.log('loader() -- trx::', trx);
     this.setTitle('Controller Hooks Test');
     this.loadCSS(['https://cdnjs.cloudflare.com/ajax/libs/prism/1.23.0/themes/prism-coy.min.css']);
-    this.unloadCSS(['/assets/css/switch-box.css']);
+    this.unloadCSS(['/client/assets/css/switch-box.css']);
 
     await this.loadView('#layout', 'pages/playground/controller-hooks/main.html');
     this.lazyJS([
@@ -40,6 +40,7 @@ class Controller_hooksCtrl extends Controller {
 
   async destroy(trx) {
     console.log('destroy() -- trx::', trx);
+    console.log('destroy() -- navig::', syslib.navig);
     console.log('destroy() -- ctrl::', this);
     this.unloadCSS(['https://cdnjs.cloudflare.com/ajax/libs/prism/1.23.0/themes/prism-coy.min.css']);
     this.unlazyJS();

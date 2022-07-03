@@ -77,6 +77,7 @@ class Controller extends Model {
     // model processes
     this.emptyModel(); // set $model to empty object
     this.proxifyModel(); // set $model as proxy object
+    this.modeler(); // define this.$modeler methods
 
     // controller processes
     try { await this.loader(trx); } catch (err) { console.error(err); }

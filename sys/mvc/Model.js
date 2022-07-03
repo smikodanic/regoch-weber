@@ -7,8 +7,6 @@ class Model extends View {
     super();
     this.$model = {};
     this.$modeler = {};
-    this.modeler();
-    this.proxifyModel();
   }
 
 
@@ -23,7 +21,7 @@ class Model extends View {
         // console.log('value::', value);
         const tf = Reflect.set(obj, prop, value);
         // console.log('obj-after::', obj);
-        this.render(prop);
+        this.render('$model.' + prop);
         return tf;
       }
     };
@@ -34,10 +32,13 @@ class Model extends View {
 
 
   /**
-   * Define modeler methods, for example: this.$modeler.use('pets').push('dog');
+   * Define modeler (helper) methods, for example: this.$modeler.use('pets').mpush('dog');
    * @returns [any[]]
    */
   modeler() {
+    /**
+     * @param {string} moelName - the model name, for example in $model.company.name --> modelName is company
+     */
     this.$modeler.use = (modelName) => {
       const methods = {
         /**
@@ -46,42 +47,38 @@ class Model extends View {
          * @param {string} path - the $model property path, for example 'product.name'
          */
         setValue: (val, path) => {
-          const prop = !!path ? `${modelName}.${path}` : modelName;
-          this._setModelValue(prop, val); // see Aux class
+          const mprop = !!path ? `${modelName}.${path}` : modelName;
+          this._setModelValue(mprop, val); // see Aux class
         },
 
         getValue: (path) => {
-          const prop = !!path ? `${modelName}.${path}` : modelName;
-          const val = this._getModelValue(prop);
+          const mprop = !!path ? `${modelName}.${path}` : modelName;
+          const val = this._getModelValue(mprop); // see Aux class
           return val;
         },
 
         mpush: (arrElem) => {
           this.$model[modelName].push(arrElem);
-          this.render(modelName);
+          this.render('$model.' + modelName);
         },
 
         mpop: () => {
           this.$model[modelName].pop();
-          this.render(modelName);
+          this.render('$model.' + modelName);
         },
 
         munshift: (arrElem) => {
           this.$model[modelName].unshift(arrElem);
-          this.render(modelName);
+          this.render('$model.' + modelName);
         },
 
         mshift: () => {
           this.$model[modelName].shift();
-          this.render(modelName);
-        },
-
-        schema: (schemaDef) => {
-          this.$schema[modelName] = schemaDef;
+          this.render('$model.' + modelName);
         },
 
         mrender: () => {
-          this.render(modelName);
+          this.render('$model.' + modelName);
         },
 
       };
@@ -98,7 +95,6 @@ class Model extends View {
    */
   emptyModel() {
     this.$model = {};
-    this.proxifyModel(); // because $model must be Proxy
   }
 
 

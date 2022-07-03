@@ -57,13 +57,13 @@
 
     <br><br><br><button type="button" data-rg-click="generateAutos()">generate Autos</button> - generate SELECT/OPTION by data-rg-for and <i>data-rg-print</i> and set the default value
     <br><br>autos: <select name="autosN">
-      <option data-rg-for="autos" data-rg-value="autos.$i0.id" data-rg-print="autos.$i0.name"></option>
+      <option data-rg-for="$model.autos" data-rg-value="$model.autos.$i0.id" data-rg-print="$model.autos.$i0.name"></option>
     </select>
 
 
     <br><br><br><button type="button" data-rg-click="generatePlants()">generate Plants</button> - generate SELECT/OPTION by data-rg-for and <i>data-rg-echo</i> and set the default value
     <br><br>plants: <select name="plantsN">
-      <option data-rg-for="plants" data-rg-value="plants.$i0.id" data-rg-echo="{plants.$i0.name} -- price: ${plants.$i0.price}"></option>
+      <option data-rg-for="$model.plants" data-rg-value="$model.plants.$i0.id" data-rg-echo="{{$model.plants.$i0.name}} -- price: ${{$model.plants.$i0.price}}"></option>
     </select>
 
     <br><br><br>
@@ -76,4 +76,5 @@
 
   </form>
 
+  <br><br><br>
 </main>

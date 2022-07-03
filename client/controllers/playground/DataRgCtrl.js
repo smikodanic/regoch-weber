@@ -40,7 +40,8 @@ class DataRgCtrl extends Controller {
     this.$model.herbals = [];
 
     // initial for runFORnested
-    this.$model.fields = ['name', 'from', 'to', 'duration'];
+    // this.$model.fields = ['name', 'from', 'to', 'duration']; // data-rg-print="$model.trains.$i2.($model.fields.$i3) @@ append"
+    this.fields = ['name', 'from', 'to', 'duration']; // data-rg-print="$model.trains.$i2.(fields.$i3) @@ append"
     this.$model.trains = [
       { name: 'TRAIN-A', from: 'DU', to: 'ST', duration: 55 },
       { name: 'TRAIN-B', from: 'ST', to: 'KN', duration: 66 }
@@ -54,9 +55,10 @@ class DataRgCtrl extends Controller {
 
     // initail value for data-rg-print with the pipe
     this.$model.longText = 'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry standard.';
+    this.$model.obj4json = { x: 555 };
 
     // text with the HTML
-    this.$model.htmlText = 'The best <b style="color:red">man</b> friend is: <i data-rg-if="bestFriend $not()">NOBODY</i> <i data-rg-if="bestFriend $eq(Dog)">DOG</i>';
+    this.$model.htmlText = 'The best <b style="color:red">man</b> friend is: <i data-rg-if="$model.bestFriend $not()">NOBODY</i> <i data-rg-if="$model.bestFriend $eq(Dog)">DOG</i>';
 
     // initial value for the data-rg-model
     this.$model.myMDL = { name: 'Smokie', animal: 'horse', article: 'Lorem ipsumus ...' };
@@ -69,6 +71,8 @@ class DataRgCtrl extends Controller {
       animal: 'dog',
       article: 'Some article ...'
     };
+
+    console.log(this.someNum_1, this.$model.obj4json);
   }
 
 
@@ -111,13 +115,31 @@ class DataRgCtrl extends Controller {
 
   // run data-rg-for inside data-rg-for
   async runFORnested() {
-    this.$model.fields = ['name', 'from', 'to', 'duration'];
     this.$model.trains = [
       { name: 'TRAIN1', from: 'OS', to: 'NA', duration: 2 },
       { name: 'TRAIN2', from: 'OS', to: 'ZG', duration: 3 },
       { name: 'TRAIN3', from: 'SB', to: 'VK', duration: 5 }
     ];
   }
+
+
+  // parse interpolated text in variable name
+  async runFOR_parseInterpolated() {
+    this.$model.kids = [
+      { _id: 111, name: 'tom' },
+      { _id: 222, name: 'jill' },
+      { _id: 333, name: 'ben' }
+    ];
+
+    // await syslib.util.sleep(700);
+
+    // print in the variable names with the interpolated text
+    this.$model['kid_111'] = 'TOM';
+    this.$model.kid_222 = 'JILL';
+    this.$model.kid_333 = 'BEN';
+  }
+
+
 
   // repeat the data-rg-repeat num times
   async runREPEAT(num) {
@@ -143,7 +165,7 @@ class DataRgCtrl extends Controller {
     await syslib.util.sleep(1300);
 
     this.$model.product.colors = ['blue', 'orange'];
-    this.$modeler.use('product').mrender();
+    this.$modeler.use('product').mrender(); // call render() because this.$model.product.colors is not Proxy and render() will not be trigered
   }
 
 
@@ -156,6 +178,12 @@ class DataRgCtrl extends Controller {
 
   /*********** NON-GENERATORS **********/
 
+  // toggle if and show hide elements
+  toggleIF() {
+    this.$model.ifX = !this.$model.ifX;
+    console.log('toggleIF::', this.$model.ifX);
+  }
+
   // toggle text color by using data-rg-elem
   runELEM() {
     this.toggle = !this.toggle;
@@ -164,12 +192,6 @@ class DataRgCtrl extends Controller {
     } else {
       this.$rg.elems.myElem.style.color = 'silver';
     }
-  }
-
-  // toggle if and show hide elements
-  toggleIF() {
-    this.$model.ifX = !this.$model.ifX;
-    console.log('toggleIF::', this.ifX);
   }
 
   runIF() {
@@ -240,8 +262,8 @@ class DataRgCtrl extends Controller {
 
 
   showSetinitial() {
-    console.log('someNum_1::', typeof this.$model.someNum_1, this.$model.someNum_1);
-    console.log('someNum_2::', typeof this.$model.someNum_2, this.$model.someNum_2);
+    console.log('someNum_1::', typeof this.someNum_1, this.someNum_1);
+    console.log('someNum_2::', typeof this.someNum_2, this.someNum_2);
   }
 
 }

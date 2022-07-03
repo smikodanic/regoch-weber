@@ -17,7 +17,7 @@ class ModelCtrl extends Controller {
 
   async init(trx) {
     this.$model.user = { name: 'John Doe', age: 11 }; // this is ok because $model is used after loader()
-    console.log('$model::', this.$model);
+    console.log('this.$model::', this.$model);
   }
 
 

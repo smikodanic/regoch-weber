@@ -9,7 +9,7 @@ class View_lazyJSCtrl extends Controller {
 
   async loader(trx) {
     this.setTitle('lazyJS() Test');
-    this.unloadCSS(['/assets/css/switch-box.css']);
+    this.unloadCSS(['/client/assets/css/switch-box.css']);
     await this.loadView('#layout', 'pages/playground/view-lazyjs/main.html');
   }
 
@@ -40,7 +40,7 @@ class View_lazyJSCtrl extends Controller {
 
   lazyTest() {
     this.lazyJS([
-      '/assets/regoch/js/lazyTest2.js'
+      '/client/assets/regoch/js/lazyTest2.js'
     ], 1000);
   }
 

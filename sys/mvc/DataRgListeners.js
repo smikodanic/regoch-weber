@@ -284,7 +284,7 @@ class DataRgListeners extends Aux {
 
       const handler = event => {
         const val = this._getElementValue(elem, convertType);
-        this._setModelValue(prop, val);
+        this._setControllerValue(prop, val);
         this._debug('rgSet', `Executed rgSet listener --> controller property:: ${prop} = ${val}`, 'orangered');
       };
 
@@ -322,21 +322,21 @@ class DataRgListeners extends Aux {
 
       const attrValSplited = attrVal.split(this.$rg.separator);
 
-      const prop = attrValSplited[0].trim();
+      const mprop = attrValSplited[0].replace('$model.', '').trim(); // $model property name (without $model.)
 
       const convertType_param = !!attrValSplited[1] ? attrValSplited[1].trim() : ''; // 'convertType' | 'convertTypeDont'
       const convertType = convertType_param === 'convertTypeDont' ? false : true;
 
       /** SETTER **/
-      const val1 = this._getModelValue(prop);
+      const val1 = this._getModelValue(mprop);
       this._setElementValue(elem, val1);
-      this._debug('rgModel', `rgModel set element value  --> controller property:: ${prop} = ${val1} | elem.type:: ${elem.type}`, 'orangered');
+      this._debug('rgModel', `rgModel set element value  --> controller property:: ${mprop} = ${val1} | elem.type:: ${elem.type}`, 'orangered');
 
       /** LISTENER **/
       const handler = event => {
         const val2 = this._getElementValue(elem, convertType);
-        this._setModelValue(prop, val2);
-        this._debug('rgModel', `Executed rgModel listener --> controller property:: ${prop} = ${val2}`, 'orangered');
+        this._setModelValue(mprop, val2); // this will trigger render()
+        this._debug('rgModel', `Executed rgModel listener --> controller property:: ${mprop} = ${val2}`, 'orangered');
       };
 
       const eventName = 'input';

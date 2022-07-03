@@ -4,21 +4,21 @@
 class Aux {
 
   /**
-   * Get the controller property's value.
-   * For example controller's property is this.company.name
-   * @param {string} prop - controller property name, for example: company.name
+   * Get the controller property's value. For example controller's property is this.$model.firstName in JS and in HTML data-rg-print="$model.firstName"
+   * @param {string} prop - controller property name, for example: company.name, $model.car.color, $fridge.color
    * @returns {any}
    */
   _getControllerValue(prop) {
-    const reg = new RegExp(`\\(${this.$rg.varnameChars}\\)`);
-    if (reg.test(prop)) { prop = '$model.' + this._solveControllerName(prop); } // solve round brackets
+    prop = this._solveVarname(prop); // first solve round brackets, for example: $model.pet_(pets.$i0._id) -> $model.pet_12345
 
     const propSplitted = prop.split('.'); // ['company', 'name']
     const prop1 = propSplitted[0]; // company
+
     let val = this[prop1]; // controller property value
     propSplitted.forEach((prop, key) => {
       if (key !== 0 && val != undefined) { val = val[prop]; }
     });
+
     return val;
   }
 
@@ -46,48 +46,62 @@ class Aux {
   }
 
 
+
   /**
-   * Set the $model property's value. Up to 5 levels deep.
-   * @param {string} prop - $model property name (path), for example: 'company.ceo.name' represents this.$model.company.ceo.name
-   * @param {any} val - $model property value
+   * Get the model value
+   * @param {string} mprop - $model property path (without $model), for example 'car.year' is 'this.$model.car.year'
+   */
+  _getModelValue(mprop) {
+    const prop = '$model.' + mprop;
+    const val = this._getControllerValue(prop);
+    return val;
+  }
+
+
+  /**
+   * Set the $model property's value with <input data-rg-model="modelName.mprop1.mprop2">.
+   * Up to 5 levels deep and every object level is a new Proxy object.
+   * --- This method will trigger render() because this.$model is Proxy object. ---
+   * @param {string} mprop - $model property path (without $model), for example: 'company.ceo.name' represents this.$model.company.ceo.name
+   * @param {any} val - the value of $model property i.e. mprop
    * @returns {void}
    */
-  _setModelValue(prop, val) {
-    const props = prop.split('.'); // ['company', 'cto',  'name']
-    const modelName = props.shift(); // modelName:: 'company'  AND  props:: ['cto',  'name']
+  _setModelValue(mprop, val) {
+    const mprops = mprop.split('.'); // ['company', 'cto',  'name']
+    const modelName = mprops.shift(); // modelName:: 'company'  AND  props:: ['cto',  'name']
 
-    if (props.length === 0) {
+    if (mprops.length === 0) {
       this.$model[modelName] = val;
 
-    } else if (props.length === 1) {
-      const prop1 = props[0];
+    } else if (mprops.length === 1) {
+      const prop1 = mprops[0];
       const obj = this.$model[modelName] || {};
       obj[prop1] = val;
       this.$model[modelName] = obj;
 
-    } else if (props.length === 2) {
-      const prop1 = props[0];
-      const prop2 = props[1];
+    } else if (mprops.length === 2) {
+      const prop1 = mprops[0];
+      const prop2 = mprops[1];
       const obj = this.$model[modelName] || {};
       obj[prop1] = obj[prop1] || {};
       obj[prop1][prop2] = val;
       this.$model[modelName] = obj;
 
-    } else if (props.length === 3) {
-      const prop1 = props[0];
-      const prop2 = props[1];
-      const prop3 = props[2];
+    } else if (mprops.length === 3) {
+      const prop1 = mprops[0];
+      const prop2 = mprops[1];
+      const prop3 = mprops[2];
       const obj = this.$model[modelName] || {};
       obj[prop1] = obj[prop1] || {};
       obj[prop1][prop2] = obj[prop1][prop2] || {};
       obj[prop1][prop2][prop3] = val;
       this.$model[modelName] = obj;
 
-    } else if (props.length === 4) {
-      const prop1 = props[0];
-      const prop2 = props[1];
-      const prop3 = props[2];
-      const prop4 = props[3];
+    } else if (mprops.length === 4) {
+      const prop1 = mprops[0];
+      const prop2 = mprops[1];
+      const prop3 = mprops[2];
+      const prop4 = mprops[3];
       const obj = this.$model[modelName] || {};
       obj[prop1] = obj[prop1] || {};
       obj[prop1][prop2] = obj[prop1][prop2] || {};
@@ -95,12 +109,12 @@ class Aux {
       obj[prop1][prop2][prop3][prop4] = val;
       this.$model[modelName] = obj;
 
-    } else if (props.length === 5) {
-      const prop1 = props[0];
-      const prop2 = props[1];
-      const prop3 = props[2];
-      const prop4 = props[3];
-      const prop5 = props[4];
+    } else if (mprops.length === 5) {
+      const prop1 = mprops[0];
+      const prop2 = mprops[1];
+      const prop3 = mprops[2];
+      const prop4 = mprops[3];
+      const prop5 = mprops[4];
       const obj = this.$model[modelName] || {};
       obj[prop1] = obj[prop1] || {};
       obj[prop1][prop2] = obj[prop1][prop2] || {};
@@ -112,38 +126,6 @@ class Aux {
 
   }
 
-
-  /**
-   * Get the model value
-   * @param {string} modelProp - model property path, for example 'car.year' is '$model.car.year'
-   */
-  _getModelValue(modelProp) {
-    let prop = '$model.' + modelProp;
-    if (/\$/.test(modelProp)) { prop = modelProp; } // for example: data-rg-print="$fridge.age"
-    const val = this._getControllerValue(prop);
-    return val;
-  }
-
-
-
-  /**
-   * Solve round brackets in the controller property name, for example: trains.$i.($model.fields.$i2) --> trains.$i.name
-   * @param {string} prop - controller property name, trains.$i.($model.fields.$i2)
-   */
-  _solveControllerName(prop) {
-    const reg = new RegExp(`\\(${this.$rg.varnameChars}\\)`, 'g');
-    const brackets = prop.match(reg);
-    if (!brackets) { return prop; }
-
-    for (const bracket of brackets) {
-      const reg2 = new RegExp(`\\((${this.$rg.varnameChars})\\)`);
-      const prop2 = bracket.match(reg2)[1];
-      const val = this._getControllerValue(prop2);
-      prop = prop.replace(reg2, val);
-    }
-
-    return prop;
-  }
 
 
 
@@ -188,7 +170,7 @@ class Aux {
    * Replace eval(expression) in the txt (HTML code) with the evaluated value.
    * @param {string} txt  - text which needs to be replaced, usually it contains HTML tags
    */
-  _evalMath(txt) {
+  _solveMath(txt) {
     const reg = /evalMath\([\d\+\-\*\/\%\(\)\s]+\)/g;
     const evs = txt.match(reg); // ['evalMath(0 + 1)', 'evalMath(5 / 2)']
     if (!evs) { return txt; }
@@ -204,6 +186,26 @@ class Aux {
   }
 
 
+  /**
+   * Solve dynamic variable name which is generated during render time.
+   * Solve round brackets in the controller property name, for example: trains.$i.($model.fields.$i2) --> trains.$i.name
+   * @param {string} prop - controller property name, trains.$i.($model.fields.$i2)
+   */
+  _solveVarname(prop) {
+    const reg = new RegExp(`\\(${this.$rg.varnameChars}\\)`, 'g');
+    const brackets = prop.match(reg) || [];
+
+    for (const bracket of brackets) {
+      const reg2 = new RegExp(`\\((${this.$rg.varnameChars})\\)`);
+      const prop2 = bracket.match(reg2)[1];
+      const val = this._getControllerValue(prop2);
+      prop = prop.replace(reg2, val);
+    }
+
+    return prop;
+  }
+
+
 
 
   /**
@@ -211,30 +213,26 @@ class Aux {
    * @param {string} txt - text which needs to be replaced
    */
   _parseInterpolated(txt) {
-    const openingChar = '{';
-    const closingChar = '}';
+    const openingChar = '{{';
+    const closingChar = '}}';
 
-    const reg = new RegExp(`${openingChar}\\s*[0-9a-zA-Z\$\_\.]+\\s*${closingChar}`, 'g');
-    const interpolations = txt.match(reg); // ["age", "user.name"]
+    const reg = new RegExp(`${openingChar}\\s*${this.$rg.varnameChars}\\s*${closingChar}`, 'g');
+    const interpolations = txt.match(reg) || []; // ["age", "user.name"]
 
-    if (!interpolations || !interpolations.length) { // if there's no interpolated controller properties in the text
-      return txt;
-    } else {
-      for (const interpolation of interpolations) {
-        const prop = interpolation.replace(openingChar, '').replace(closingChar, '').trim();
-        if (/\$i/.test(prop)) { txt = ''; break; } // don't parse the text with $i0, $i1, ... for example: users.$i0.name
+    for (const interpolation of interpolations) {
+      const prop = interpolation.replace(openingChar, '').replace(closingChar, '').trim();
+      // if (/\$i/.test(prop)) { txt = ''; break; } // don't parse the text with $i0, $i1, ... for example: users.$i0.name
 
-        let val = this._getControllerValue('$model.' + prop);
-        if (val === undefined) {
-          this._debug('warnings', `_parseInterpolatedWarn:: Controller property ${prop} is undefined.`, 'Maroon', 'LightYellow');
-          val = '';
-        }
-        txt = txt.replace(interpolation, val);
+      let val = this._getControllerValue(prop);
+      if (val === undefined) {
+        this._debug('warnings', `_parseInterpolatedWarn:: Controller property ${prop} is undefined.`, 'Maroon', 'LightYellow');
+        val = '';
+      }
+      txt = txt.replace(interpolation, val);
 
-        // nested interpolation, for example: data-rg-echo="{docs.$i.{fields.$i}}"
-        if (reg.test(txt)) {
-          txt = this._parseInterpolated(txt);
-        }
+      // nested interpolation, for example: data-rg-echo="{docs.$i.{fields.$i}}"
+      if (reg.test(txt)) {
+        txt = this._parseInterpolated(txt);
       }
     }
 

@@ -12,7 +12,7 @@ class View_rgIncCtrl extends Controller {
     this.setDescription('Page Test description');
     this.setKeywords('regoch, playground, test, page');
     this.setLang('en');
-    await this.loadView('#layout', 'pages/playground/view-rginc/main.html', 'sibling'); // cheange here inner, outer, sibling, prepend, append
+    await this.loadView('#layout', 'pages/playground/view-rginc/main.html'); // cheange here inner, outer, sibling, prepend, append
   }
 
   async rend() { }

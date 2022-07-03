@@ -30,7 +30,6 @@ class DataRgListenersCtrl extends Controller {
       { name: 'Flower', price: 88.56 },
     ];
 
-    console.log(this);
   }
 
 
