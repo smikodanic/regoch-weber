@@ -49,6 +49,7 @@ class DataRgCtrl extends Controller {
 
     // initial value for runREPEAT
     this.$model.multiplikator = 3;
+    this.repeat_var_name = 'multiplikator';
 
     // initial values for the runSWITCH example
     this.$model.myColor = 'green';
@@ -72,7 +73,6 @@ class DataRgCtrl extends Controller {
       article: 'Some article ...'
     };
 
-    console.log(this.someNum_1, this.$model.obj4json);
   }
 
 
@@ -124,7 +124,7 @@ class DataRgCtrl extends Controller {
 
 
   // parse interpolated text in variable name
-  async runFOR_parseInterpolated() {
+  async runFOR_solveInterpolated() {
     this.$model.kids = [
       { _id: 111, name: 'tom' },
       { _id: 222, name: 'jill' },
@@ -171,6 +171,13 @@ class DataRgCtrl extends Controller {
 
   printHTML() {
     this.$model.bestFriend = 'Dog';
+  }
+
+
+  printHTML_solvemath(n) {
+    this.ad_num = n;
+    this.$model.advert___3 = '#3. I sell red Mercedes car.';
+    this.$model.advert___4 = '#4. I sell chickens.';
   }
 
 

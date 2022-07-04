@@ -3,13 +3,15 @@
  */
 class Aux {
 
+  /***** CONTROLLER PROPERTY GETTER/SETTER *****/
   /**
    * Get the controller property's value. For example controller's property is this.$model.firstName in JS and in HTML data-rg-print="$model.firstName"
    * @param {string} prop - controller property name, for example: company.name, $model.car.color, $fridge.color
    * @returns {any}
    */
   _getControllerValue(prop) {
-    prop = this._solveVarname(prop); // first solve round brackets, for example: $model.pet_(pets.$i0._id) -> $model.pet_12345
+    prop = this._solveInterpolated(prop); // first solve {{...}} brackets, for example: $model.pet___{{pets.$i0._id}} -> $model.pet___12345
+    prop = this._solveMath(prop); // $model.pet___solveMath/{{ctrlProp}} + 1/ -> $model.pet___8
 
     const propSplitted = prop.split('.'); // ['company', 'name']
     const prop1 = propSplitted[0]; // company
@@ -47,6 +49,7 @@ class Aux {
 
 
 
+  /***** MODEL PROPERTY GETTER/SETTER *****/
   /**
    * Get the model value
    * @param {string} mprop - $model property path (without $model), for example 'car.year' is 'this.$model.car.year'
@@ -128,91 +131,28 @@ class Aux {
 
 
 
-
+  /***** SOLVERS *****/
   /**
-   * Replace iteration variable $i with the number.
+   * Replace iteration variable $i with the number. Use only inside data-rg-for and data-rg-repeat.
    * @param {number} i - number to replace $i with
    * @param {string} txt - text which needs to be replaced, usually it contains HTML tags
-   * @param {string} nameExtension - extension of the variable name. For example if nameExtension is 21 then the $i21 will be replaced.
+   * @param {string} $iExtension - extension of the variable name. For example if $iExtension is 21 then the $i21 will be replaced.
    * @returns {string}
    */
-  _numerize_$i(i, txt, nameExtension) {
+  _solve_$i(i, txt, $iExtension) {
     let reg;
-    if (!nameExtension || nameExtension === '0') { reg = new RegExp(`\\$i0`, 'g'); }
-    else { reg = new RegExp(`\\$i${nameExtension}`, 'g'); }
+    if (!$iExtension || $iExtension === '0') { reg = new RegExp('\\$i0|\\$i', 'g'); } // $i can be used instead of $i0
+    else { reg = new RegExp(`\\$i${$iExtension}`, 'g'); }
     txt = txt.replace(reg, i);
     return txt;
   }
 
 
   /**
-   * Replace controller property this. with the number. Value of this.prop must be a number.
-   * @param {string} txt - text which needs to be replaced, usually it contains HTML tags
-   * @returns {string}
-   */
-  _numerize_this(txt) {
-    const reg = new RegExp(`this\\.${this.$rg.varnameChars}`, 'g');
-    const thises = txt.match(reg);
-    if (!thises) { return txt; }
-
-    for (const thise of thises) {
-      const reg2 = new RegExp(`this\\.(${this.$rg.varnameChars})`);
-      const prop = thise.match(reg2)[1];
-      const val = this._getControllerValue(prop);
-      if (typeof val === 'number') { txt = txt.replace(reg2, val); }
-    }
-
-    return txt;
-  }
-
-
-  /**
-   * Replace eval(expression) in the txt (HTML code) with the evaluated value.
-   * @param {string} txt  - text which needs to be replaced, usually it contains HTML tags
-   */
-  _solveMath(txt) {
-    const reg = /evalMath\([\d\+\-\*\/\%\(\)\s]+\)/g;
-    const evs = txt.match(reg); // ['evalMath(0 + 1)', 'evalMath(5 / 2)']
-    if (!evs) { return txt; }
-
-    for (const ev of evs) {
-      const reg2 = /evalMath\(([\d\+\-\*\/\%\(\)\s]+)\)/;
-      const expression = ev.match(reg2)[1];
-      const result = eval(expression);
-      txt = txt.replace(reg2, result);
-    }
-
-    return txt;
-  }
-
-
-  /**
-   * Solve dynamic variable name which is generated during render time.
-   * Solve round brackets in the controller property name, for example: trains.$i.($model.fields.$i2) --> trains.$i.name
-   * @param {string} prop - controller property name, trains.$i.($model.fields.$i2)
-   */
-  _solveVarname(prop) {
-    const reg = new RegExp(`\\(${this.$rg.varnameChars}\\)`, 'g');
-    const brackets = prop.match(reg) || [];
-
-    for (const bracket of brackets) {
-      const reg2 = new RegExp(`\\((${this.$rg.varnameChars})\\)`);
-      const prop2 = bracket.match(reg2)[1];
-      const val = this._getControllerValue(prop2);
-      prop = prop.replace(reg2, val);
-    }
-
-    return prop;
-  }
-
-
-
-
-  /**
-   * Find {ctrlProp} occurrences in the txt and replace it with the controller property value.
+   * Find {{ctrlProp}} occurrences in the txt and replace it with the controller property value.
    * @param {string} txt - text which needs to be replaced
    */
-  _parseInterpolated(txt) {
+  _solveInterpolated(txt) {
     const openingChar = '{{';
     const closingChar = '}}';
 
@@ -221,19 +161,38 @@ class Aux {
 
     for (const interpolation of interpolations) {
       const prop = interpolation.replace(openingChar, '').replace(closingChar, '').trim();
-      // if (/\$i/.test(prop)) { txt = ''; break; } // don't parse the text with $i0, $i1, ... for example: users.$i0.name
 
       let val = this._getControllerValue(prop);
       if (val === undefined) {
-        this._debug('warnings', `_parseInterpolatedWarn:: Controller property ${prop} is undefined.`, 'Maroon', 'LightYellow');
+        this._debug('warnings', `_solveInterpolatedWarn:: Controller property ${prop} is undefined.`, 'Maroon', 'LightYellow');
         val = '';
       }
       txt = txt.replace(interpolation, val);
 
-      // nested interpolation, for example: data-rg-echo="{docs.$i.{fields.$i}}"
+      // nested interpolation, for example: data-rg-echo="{{docs.$i.{{fields.$i}}}}"
       if (reg.test(txt)) {
-        txt = this._parseInterpolated(txt);
+        txt = this._solveInterpolated(txt);
       }
+    }
+
+    return txt;
+  }
+
+
+  /**
+   * Replace solveMath/expression/ in the txt (HTML code) with the evaluated value.
+   * @param {string} txt  - text which needs to be replaced, usually it contains HTML tags
+   */
+  _solveMath(txt) {
+    const reg = /solveMath\/[\d\+\-\*\/\%\(\)\s]+\//g;
+    const evs = txt.match(reg); // ['solveMath/0 + 1/', 'solveMath/5 / 2/']
+    if (!evs) { return txt; }
+
+    for (const ev of evs) {
+      const reg2 = /solveMath\/([\d\+\-\*\/\%\(\)\s]+)\//;
+      const expression = ev.match(reg2)[1];
+      const result = eval(expression);
+      txt = txt.replace(reg2, result);
     }
 
     return txt;

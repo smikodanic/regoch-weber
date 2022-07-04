@@ -34,7 +34,6 @@ const $debugOpts = {
   rgAttr: false,
   rgElem: false,
   rgEcho: false,
-  rgFlicker: false,
 
   // DataRgListeners.js
   rgKILL: false,

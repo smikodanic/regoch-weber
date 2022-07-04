@@ -8,7 +8,6 @@ class CookieCtrl extends Controller {
     this.input1;
     this.input2;
     this.cookieForm = new syslib.Form('cookieF');
-    console.log(location);
 
     const cookieOpts = {
       domain: location.hostname,

@@ -6,15 +6,20 @@
 
   <h4>DATA-RG-FOR</h4>
   <button data-rg-click="runFOR()">run FOR (priority: 0)</button>
-  <p data-rg-for="$model.companies" style="color:green" class="evalMath($i0+1)">
-    <span data-rg-print="$model.companies.$i0.name @@ append">evalMath($i0+1). name:</span> --
-    <b data-rg-print="$model.companies.$i0.size"></b>
+  <p data-rg-for="$model.companies" style="color:green" class="solveMath/$i+1/">
+    <span data-rg-print="$model.companies.$i.name @@ append">solveMath/$i+1/. name:</span> --
+    <b data-rg-print="$model.companies.$i.size"></b>
   </p>
 
   <br><br>
-  <button data-rg-click="runFOR2()">run FOR2 (priority: 1)</button> - initial array has no elements. Example with <b>@@priority</b> parameter and evalMath() method.
+  <button data-rg-click="runFOR2()">run FOR2 (priority: 1)</button> - initial array has no elements. Example with <b>@@priority</b> parameter and solveMath/ / method.
   <ul>
-    <li data-rg-for="$model.herbals @@ 1"><span data-rg-print="$model.herbals.$i1 @@ append">evalMath($i1 + 1) -- evalMath((this.skipNum + $i1) * 5) --</span> </li>
+    <!-- All commented examples works ! -->
+    <!-- <li data-rg-for="$model.herbals"><span data-rg-print="$model.herbals.$i @@ append">skipNum:{{skipNum}} | $i | solveMath/$i + 1/ | solveMath/({{skipNum}} + $i) * 5/ |</span> </li> -->
+    <!-- <li data-rg-for="$model.herbals"><span data-rg-print="$model.herbals.$i0 @@ append">skipNum:{{skipNum}} | $i0 | solveMath/$i0 + 1/ | solveMath/({{skipNum}} + $i0) * 5/ |</span> </li> -->
+    <!-- <li data-rg-for="$model.herbals @@ 0"><span data-rg-print="$model.herbals.$i0 @@ append">skipNum:{{skipNum}} | $i0 | solveMath/$i0 + 1/ | solveMath/({{skipNum}} + $i0) * 5/ |</span> </li> -->
+    <!-- <li data-rg-for="$model.herbals @@ 0"><span data-rg-print="$model.herbals.$i @@ append">skipNum:{{skipNum}} | $i | solveMath/$i0 + 1/ | solveMath/({{skipNum}} + $i0) * 5/ |</span> </li> -->
+    <li data-rg-for="$model.herbals @@ 1"><span data-rg-print="$model.herbals.$i1 @@ append">skipNum:{{skipNum}} | $i1 | solveMath/$i1 + 1/ | solveMath/({{skipNum}} + $i1) * 5/ |</span> </li>
   </ul>
 
 
@@ -22,17 +27,17 @@
   <button data-rg-click="runFORnested()">run FORnested (priorities: 2,3)</button> - run data-rg-for in the another data-rg-for
   <table>
     <tr data-rg-for="$model.trains @@ 2">
-      <td data-rg-for="fields @@ 3" style="width:200px"><span data-rg-print="$model.trains.$i2.(fields.$i3) @@ append"><b>evalMath($i3 + 1).</b></span></td>
+      <td data-rg-for="fields @@ 3" style="width:200px"><span data-rg-print="$model.trains.$i2.{{fields.$i3}} @@ append"><b>solveMath/$i3 + 1/.</b></span></td>
     </tr>
   </table>
 
 
   <br><br>
-  <button data-rg-click="runFOR_parseInterpolated()">run runFOR_parseInterpolated</button> - parse interpolated text in variable name
+  <button data-rg-click="runFOR_solveInterpolated()">run runFOR_solveInterpolated</button> - parse interpolated text in variable name
   <ul>
     <li data-rg-for="$model.kids">
       <span data-rg-print="$model.kids.$i0.name"></span>
-      (<span data-rg-print="$model.kid_{{$model.kids.$i0._id}}"></span>)
+      ({{$model.kids.$i0._id}} - <span data-rg-print="$model.kid_{{$model.kids.$i0._id}}"></span>)
     </li>
   </ul>
 
@@ -42,8 +47,13 @@
   <p>The example shows how <b>data-rg-repeat</b> will multiply the element. It will work good even if it contains data-rg-model and data-rg-print elements.</p>
   <p>Initially the P element will be repeated 3 times due to <b>data-rg-repeat="3"</b> attribute. When the button "run REPEAT" is clicked the element will be repeated 5 times.</p>
   <button data-rg-click="runREPEAT(5)">run REPEAT 5</button>
-  <p data-rg-repeat="$model.multiplikator" class="evalMath($i0+1)">The pet #evalMath($i0+1): <input data-rg-model="pets.$i0"> <span data-rg-print="$model.pets.$i0"></span></p>
+  <p data-rg-repeat="$model.multiplikator" class="solveMath/$i0+1/">The pet #solveMath/$i0+1/: <input data-rg-model="pets.$i0"> <span data-rg-print="$model.pets.$i0"></span></p>
 
+  <br><br>
+  <h4>DATA-RG-REPEAT</h4>
+  The example shows how to dynamic variable name with {{ctrlProp}}, for-example: data-rg-repeat="$model.(repeat_var_name)" .
+  <p data-rg-print="repeat_var_name @@ prepend"> is the variable name.</p>
+  <p data-rg-repeat="$model.{{repeat_var_name}}">solveMath/$i0+1/. repeated</p>
 
   <br><br>
   <h4>DATA-RG-PRINT &amp; DATA-RG-SET</h4>
@@ -55,7 +65,7 @@
   <br>c) @@sibling -- <b data-rg-print="$model.product.name @@ sibling">product.name:</b>
   <br>d) @@append -- <b data-rg-print="$model.product.name @@ append">product.name:</b>
   <br>e) @@prepend -- <b data-rg-print="$model.product.name @@ prepend">is the product.name</b>
-  <br>f) @@inset -- <b data-rg-print="$model.product.name @@ inset">The product name is <i>${}</i> !</b>
+  <br>f) @@inset -- <b data-rg-print="$model.product.name @@ inset">The product name is <i>{{}}</i> !</b>
   <br> <input type="text" name="x" data-rg-model="product.name" placeholder="change product.name">
   <br>
   <br>g) <span data-rg-print="$model.product.address.city @@ append">The product.address.city is</span>
@@ -90,6 +100,13 @@
   <h4>DATA-RG-PRINT with the HTML tags</h4>
   <button data-rg-click="printHTML()">print HTML</button>
   <p data-rg-print="$model.htmlText"></p>
+
+  <br><br>
+  <h4>DATA-RG-PRINT dynamic variable name with {{}} and solveMath//</h4>
+  <b>data-rg-print="$model.advert___{{ad_num}}"</b> - always separate dynamic part with 3 underscores ___ , otherwise automatic render() will not work with the $model
+  <br><button data-rg-click="printHTML_solvemath(3)">print solvemath</button>
+  <p data-rg-print="$model.advert___{{ad_num}}"></p>
+  <p data-rg-print="$model.advert___solveMath/{{ad_num}} + 1/"></p>
 
   <br><br><br>
   <h3>--NON-GENERATORS--</h3>
@@ -162,7 +179,12 @@
 
   <br><br><br>
   <h4>DATA-RG-ECHO</h4>
-  <span data-rg-echo="This is the echoed pure text!"></span>
+  <p data-rg-echo="This is the echoed pure text!"></p>
+  <p data-rg-echo="
+  I work in {{$model.companies.0.name}}.
+  [br] The multiplikator is [b style='color:red']{{$model.multiplikator}}[/b] !
+  [br] Increased multiplikator is solveMath/{{$model.multiplikator}} + 1/ .
+  "></p>
   <p data-rg-repeat="$model.multiplikator" data-rg-echo="company name: {{$model.companies.$i0.name  }} -- company size: {{ $model.companies.$i0.size }}"></p>
 
 

@@ -102,6 +102,10 @@ class Controller extends Model {
    * @param {number} renderDelay - delay in miliseconds
    */
   async render(attrValQuery, renderDelay = 5) {
+    /* - remove dynamic part of the attrValquery because dynamic part in the data-rg- elem is not same as solved attrValQuery
+       - for example data-rg-print="$model.advert___{{ad_num}}" is resolved to $model.advert___3 */
+    if (!!attrValQuery) { attrValQuery = attrValQuery.replace(/___.+$/, ''); } // $model.advert___3 -> $model.advert
+
     this._debug('render', `--------- render (start) -- attrValQuery: ${attrValQuery} -- renderDelay: ${renderDelay} -- ctrl: ${this.constructor.name} ------`, 'green', '#D9FC9B');
 
     // Render DataRg generators.

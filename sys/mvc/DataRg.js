@@ -100,12 +100,10 @@ class DataRg extends DataRgListeners {
       for (let i = 1; i <= newElemsTotal; i++) {
         const i2 = newElemsTotal - i; // when newElemsTotal=4 then i2 has 3,2,1,0
         elem.parentNode.insertBefore(newElem, elem.nextSibling);
-        let outerHTML = this._numerize_$i(i2, newElem.outerHTML, priority); // replace $i, $i1, $i12 with the number
-        outerHTML = this._numerize_this(outerHTML); // replace this.ctrlProp with the number
-        outerHTML = this._solveMath(outerHTML); // calculte for example evalMath($i0 + 1)
-        outerHTML = this._parseInterpolated(outerHTML); // parse interpolated text in the variable name, for example: pet_{$model.pets.$i0._id}
+        let outerHTML = this._solve_$i(i2, newElem.outerHTML, priority); // replace $i, $i1, $i12 with the number
+        outerHTML = this._solveInterpolated(outerHTML); // parse interpolated text in the variable name, for example: pet_{{$model.pets.$i0._id}}
+        outerHTML = this._solveMath(outerHTML); // calculte for example solveMath/$i0 + 1/
         newElem.outerHTML = outerHTML;
-        newElem.style.display = '';
       }
 
     }
@@ -151,8 +149,8 @@ class DataRg extends DataRgListeners {
       for (let i = 1; i <= newElemsTotal; i++) {
         const i2 = newElemsTotal - i; // 3,2,1,0
         elem.parentNode.insertBefore(newElem, elem.nextSibling);
-        let outerHTML = this._numerize_$i(i2, newElem.outerHTML, 0); // replace $i, $i1, $i12 with the number
-        outerHTML = this._numerize_this(outerHTML); // replace this.ctrlProp with the number
+        let outerHTML = this._solve_$i(i2, newElem.outerHTML); // replace $i, $i1, $i12 with the number
+        outerHTML = this._solveInterpolated(outerHTML); // parse interpolated text in the variable name, for example: pet_{{$model.pets.$i0._id}}
         outerHTML = this._solveMath(outerHTML);
         newElem.outerHTML = outerHTML;
       }
@@ -239,7 +237,7 @@ class DataRg extends DataRgListeners {
       } else if (act === 'append') {
         newElem.innerHTML = elem.innerHTML + ' ' + val;
       } else if (act === 'inset') {
-        newElem.innerHTML = elem.innerHTML.replace('${}', val);
+        newElem.innerHTML = elem.innerHTML.replace('{{}}', val);
       } else {
         elem.innerHTML = val;
       }
@@ -773,19 +771,16 @@ class DataRg extends DataRgListeners {
     // associate values
     for (const elem of elems) {
       let txt = elem.getAttribute('data-rg-echo');
+
       this._debug('rgEcho', `rgEcho txt before: ${txt}`, 'navy', '#B6ECFF');
 
-      // checks html tags
-      if (/<[^>]*>/.test(txt)) { console.log(`%c rgEchoWarn:: The text shouldn't contain HTML tags.`, `color:Maroon; background:LightYellow`); }
-
-      txt = this._parseInterpolated(txt); // replace {ctrlProp} with the controller property value
-
-      // prevent showing evalMath(...) until rgFor convert controller properties to real numbers, for example in evalMath((this.currentPage - 1) * this.itemsPerPage + $i0 + 1)
-      txt = /evalMath/.test(txt) ? '' : txt;
+      txt = this._solveInterpolated(txt); // parse interpolated text in the variable name, for example: pet_{{$model.pets.$i0._id}}
+      txt = this._solveMath(txt); // calculte for example solveMath/$i0 + 1/
+      txt = txt.replace(/\[/g, '<').replace(/\]/g, '>'); // solve html tags, [b style='color:red']3[/b]
 
       this._debug('rgEcho', `rgEcho txt after: ${txt}\n`, 'navy', '#B6ECFF');
 
-      elem.textContent = txt;
+      elem.innerHTML = txt;
     }
 
     this._debug('rgEcho', '--------- rgEcho (end) ------', 'navy', '#B6ECFF');
