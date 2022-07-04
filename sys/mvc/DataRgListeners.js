@@ -101,14 +101,7 @@ class DataRgListeners extends Aux {
 
       const handler = async event => {
         if (tf) { event.preventDefault(); }
-
-        const statement_reg = /\w\s*\=\s*[a-zA-z0-9\'\"]+/; // regexp for statement, for example age = 3
-        if (statement_reg.test(funcDefs)) {
-          await this._statementExe(funcDefs); // in this case funcDefs is the statement, for example: age=3
-        } else {
-          await this._funcsExe(funcDefs, elem, event);
-        }
-
+        await this._funcsExe(funcDefs, elem, event);
         this._debug('rgClick', `Executed rgClick listener --> ${funcDefs} | preventDefault: ${tf}`, 'orangered');
       };
 
@@ -149,14 +142,7 @@ class DataRgListeners extends Aux {
         let eventCode;
         if (event.code) { eventCode = event.code.toLowerCase(); }
         if (!!keyCode && keyCode !== eventCode) { return; }
-
-        const statement_reg = /\w\s*\=\s*[a-zA-z0-9\'\"]+/; // regexp for statement, for example age = 3
-        if (statement_reg.test(funcDefs)) {
-          await this._statementExe(funcDefs); // in this case funcDefs is the statement, for example: age=3
-        } else {
-          await this._funcsExe(funcDefs, elem, event);
-        }
-
+        await this._funcsExe(funcDefs, elem, event);
         this._debug('rgKeyup', `Executed rgKeyup listener --> ${funcDefs} | eventCode: ${eventCode}`, 'orangered');
       };
 
@@ -189,13 +175,7 @@ class DataRgListeners extends Aux {
       const funcDefs = attrVal; // func1();func2();
 
       const handler = async event => {
-        const statement_reg = /\w\s*\=\s*[a-zA-z0-9\'\"]+/; // regexp for statement, for example age = 3
-        if (statement_reg.test(funcDefs)) {
-          await this._statementExe(funcDefs); // in this case funcDefs is the statement, for example: age=3
-        } else {
-          await this._funcsExe(funcDefs, elem, event);
-        }
-
+        await this._funcsExe(funcDefs, elem, event);
         this._debug('rgChange', `Executed rgChange listener --> ${funcDefs}`, 'orangered');
       };
 
@@ -234,13 +214,7 @@ class DataRgListeners extends Aux {
         const funcDefs = attrValSplited[1]; // func1();func2();
 
         const handler = async event => {
-          const statement_reg = /\w\s*\=\s*[a-zA-z0-9\'\"]+/; // regexp for statement, for example age = 3
-          if (statement_reg.test(funcDefs)) {
-            await this._statementExe(funcDefs); // in this case funcDefs is the statement, for example: age=3
-          } else {
-            await this._funcsExe(funcDefs, elem, event);
-          }
-
+          await this._funcsExe(funcDefs, elem, event);
           this._debug('rgEvt', `Executed rgEvt listener --> ${funcDefs}`, 'orangered');
         };
 

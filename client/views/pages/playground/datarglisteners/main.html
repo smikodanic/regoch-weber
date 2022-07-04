@@ -31,10 +31,27 @@
 
 
   <br><br>
+  <h4>DATA-RG-CLICK assignment</h4>
+  The examples show how to assign values to $model directly in the HTML without use of functions i.e. controller methods. <b>data-rg-click="$model.ass_4 = products.1.name"</b>
+  <br><button data-rg-click="$model.ass_1 = 8888">CLICK assignment 1</button> $model.ass_1 = <span data-rg-print="$model.ass_1"></span>
+  <br><button data-rg-click="$model.ass_2 = 'single quote'">CLICK assignment 2</button> <span data-rg-echo="$model.ass_2 = {{$model.ass_2}}"></span>
+  <br><button data-rg-click='$model.ass_2b = "double quote"'>CLICK assignment 2b</button> <span data-rg-print="$model.ass_2b"></span>
+  <br><button data-rg-click="$model.ass_3 = $model.cats.1">CLICK assignment 3</button> <span data-rg-print="$model.ass_3"></span>
+  <br><button data-rg-click="$model.ass_3b = $model.cats.1">CLICK assignment 3b</button> <span data-rg-print="$model.ass_3b"></span>
+  <br><button data-rg-click="$model.ass_4 = this.products.1.name">CLICK assignment 4</button> <span data-rg-print="$model.ass_4"></span>
+
+
+  <br><br>
   <h4>DATA-RG-KEYUP</h4>
   Focus the INPUT field, type some letters and press enter. (Open console to watch the result.)
   <br><input type="text" style="width:210" data-rg-keyup="runKEYUP($element, $value, $event)"> - bind to all keyup event codes
   <br><input type="text" value="123.45" style="width:210" data-rg-keyup="runKEYUP($element, $value, $event) @@ enter"> - bind to "enter" keyup event.code
+
+
+  <br><br>
+  <h4>DATA-RG-KEYUP assignment</h4>
+  Type number and press enter. The SPAN will be filled with text from $element.value, <b>data-rg-keyup="$model.ass_num1 = $element.value @@ enter"</b>
+  <br><input type="number" data-rg-keyup="$model.ass_num1 = $element.value @@ enter"> $model.ass_num1 = <span data-rg-print="$model.ass_num1"></span>
 
 
   <br><br>
@@ -60,12 +77,24 @@
 
 
   <br><br>
+  <h4>DATA-RG-CHANGE assignment</h4>
+  This example shows when INPUT value is change the $model is assigned with the controller value <b>data-rg-change="$model.changed_text = products.1.name"</b>
+  <br><input type="text" data-rg-change="$model.changed_text = this.products.1.name"> <span data-rg-print="$model.changed_text"></span>
+
+  <br><br>
   <h4>DATA-RG-EVT</h4>
   <span style="font-weight:bold" data-rg-evt="
     mouseenter @@ runEVT($element, $event, 'red') &&
     mouseleave @@ runEVT($element, $event, 'green') &&
     click @@ runEVT($element, $event, 'blue')
   ">mouseenter and click this text</span>
+
+  <br><br>
+  <h4>DATA-RG-EVT assignment</h4>
+  This example shows when text in U tag is clicked the $model is assigned with the controller value <b>data-rg-evt="click @@ $model.changed_text2 = products.1.name"</b>
+  <br><u type="text" data-rg-evt="click @@ $model.changed_text2 = this.products.1.name" style="cursor:pointer;">CLICK ME</u> <span data-rg-print="$model.changed_text2"></span>
+  <br><u type="text" data-rg-evt="click @@ $model.changed_text3 = this.$model.cats.0" style="cursor:pointer;">CLICK ME</u> <span data-rg-print="$model.changed_text3"></span>
+  <br><u type="text" data-rg-evt="click @@ $model.changed_text4 = $model.cats.1" style="cursor:pointer;">CLICK ME</u> <span data-rg-print="$model.changed_text4"></span>
 
 
 

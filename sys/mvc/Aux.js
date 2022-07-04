@@ -253,6 +253,34 @@ class Aux {
   }
 
 
+  /***** FUNCTIONS *****/
+  /**
+   * Execute the assignment. For example: $model.age = 3 in data-rg-click="$model.age = 3" will set model this.$model.age=3
+   * Examples: $model.age=3 , $model.name = 'Marko', $model.name="Marko" , $model.age=$element.value , $model.age=this.ctrlProp , $model.age=$model.mdlProp
+   * @param {string} assignment - JS assignment, for example: age = 3 i.e. prop=val
+  * @param {HTMLElement} elem - element where is the data-rg-... attribute
+   * @param {Event} event - the DOM Event object
+   * @return {void}
+   */
+  _assignmentExe(assignment, element, event) {
+    try {
+      const splitted = assignment.split('='); // prop=val
+      const prop = splitted[0].trim();
+      let val = splitted[1].trim().replace(/\'|\"|\`/g, '');
+
+      // solve val if it's $element.value or ctrlProp (controller property)
+      const reg = new RegExp(this.$rg.varnameChars, '');
+      if (/^\$element/.test(val)) { const element_prop = val.split('.')[1] || 'value'; val = element[element_prop]; } // data-rg-click="$model.x = $element.value"
+      else if (/^\$event/.test(val)) { const event_prop = val.split('.')[1] || 'type'; val = event[event_prop]; }  // data-rg-click="$model.x = $event.type" (rarely used)
+      else if (/^\$model/.test(val)) { val = val.replace('$model.', ''); val = this._getModelValue(val); }  // data-rg-click="$model.x = $model.y"
+      else if (/^this\./.test(val)) { val = val.replace('this.', ''); val = this._getControllerValue(val); } // data-rg-click="$model.x = this.ctrlProp"
+      else { val = val; } // data-rg-click="$model.x = 888"
+      this._setControllerValue(prop, val);
+    } catch (err) {
+      console.error(err);
+    }
+  }
+
   /**
    * Parse function definition and return function name and arguments.
    * For example: products.list(25, 'str', $event, $element) -> {funcName: 'products.list', funcArgs: [55, elem]}
@@ -326,6 +354,13 @@ class Aux {
    * @param {Event} event - the DOM Event object
    */
   async _funcsExe(funcDefs, elem, event) {
+    const statement_reg = /\w\s*\=\s*[a-zA-z0-9\'\"\$]+/; // regexp for statement, for example age = 3
+    if (statement_reg.test(funcDefs)) {
+      const assignment = funcDefs;
+      this._assignmentExe(assignment, elem, event);
+      return;
+    }
+
     const funcDefs_arr = funcDefs.split(';').filter(funcDef => !!funcDef).map(funcDef => funcDef.trim());
     for (const funcDef of funcDefs_arr) {
       const { funcName, funcArgs } = this._funcParse(funcDef, elem, event);
@@ -334,23 +369,8 @@ class Aux {
   }
 
 
-  /**
-   * Execute the statement. For example: age = 3 in data-rg-click="age = 3" willset model this.$model.age=3
-   * @param {string} statement - JS statement, for example: age = 3
-   * @return {void}
-   */
-  async _statementExe(statement) {
-    try {
-      const splitted = statement.split('=');
-      const field = splitted[0].trim();
-      const value = splitted[1].trim().replace(/\'|\"|\`/g, '');
-      this.$model[field] = value; // set the model
-    } catch (err) {
-      console.error(err);
-    }
-  }
 
-
+  /***** DOM ELEMENTS *****/
   /**
    * Clone the original element and place new element in the element sibling position.
    * The original element gets data-rg-xyz-id , unique ID to distinguish the element from other data-rg-xyz elements on the page.

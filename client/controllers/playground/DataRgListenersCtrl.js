@@ -30,6 +30,9 @@ class DataRgListenersCtrl extends Controller {
       { name: 'Flower', price: 88.56 },
     ];
 
+    // test CLICK assignment
+    this.$model.cats = ['Kiki', 'Pepa'];
+
   }
 
 
