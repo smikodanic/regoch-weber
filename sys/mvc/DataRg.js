@@ -267,29 +267,25 @@ class DataRg extends DataRgListeners {
     const attrName = 'data-rg-if';
     const elems = this._listElements(attrName, attrValQuery);
     this._debug('rgIf', `found elements:: ${elems.length} | attrValQuery:: ${attrValQuery}`, 'navy');
+
     if (!elems.length) { return; }
 
     for (const elem of elems) {
-      const attrVal = elem.getAttribute(attrName).trim(); // ifAge
+      const attrVal = elem.getAttribute(attrName).trim(); // age_tf , $model.age === 3, age > this.myAge , age < $model.yourAge , age $lt($model.age)
       if (!attrVal) { console.error(`Attribute "data-rg-if" has bad definition (data-rg-if="${attrVal}").`); continue; }
-      const propComp = attrVal.trim(); // controller property with comparison function, for example: ifAge $eq(22)
-      const propCompSplitted = propComp.split(/\s+\$/);
 
-      const prop = propCompSplitted[0].trim(); // ifAge
-      const val = this._getControllerValue(prop);
-
-      const funcDef = propCompSplitted[1] ? '$' + propCompSplitted[1].trim() : undefined; // $eq(22)
-      let tf = !!val;
-      if (!!funcDef) {
-        // parse data-rg-if with the comparison operators: $not(), $eq(22), $ne(22), ...
-        const { funcName, funcArgs } = this._funcParse(funcDef, elem);
-        tf = this._calcComparison(val, funcName, funcArgs);
+      /* define tf */
+      let tf = false;
+      if (/\!|<|>|=/.test(attrVal)) {
+        // parse data-rg-if with ! = < > && ||: data-rg-if="5<2" data-rg-if="!{{age}}" , data-rg-if="{{age}} > 3" , data-rg-if="{{age}} >= {{$model.myAge}}"
+        tf = this._calcComparison_A(attrVal);
       } else {
-        // parse data-rg-if without the comparison operators
-        tf = !!val;
+        // parse data-rg-if with pure controller value: data-rg-if="is_active"
+        // parse data-rg-if with the comparison operators: $not(), $eq(22), $ne(22), ...  --> data-rg-if="age $eq(5)" , data-rg-if="age $eq($model.myAge)", data-rg-if="age $gt(this.myNum)"
+        tf = this._calcComparison_B(attrVal);
       }
 
-      // hide/show elem
+      /* hide/show elem */
       if (tf) {
         const dataRgPrint_attrVal = elem.getAttribute('data-rg-print');
         if (!!dataRgPrint_attrVal && /outer|sibling|prepend|append|inset/.test(dataRgPrint_attrVal)) { elem.style.display = 'none'; } // element with data-rg-print should stay hidden because of _genElem_create()
@@ -298,7 +294,7 @@ class DataRg extends DataRgListeners {
         elem.style.display = 'none';
       }
 
-      this._debug('rgIf', `rgIf:: <${elem.tagName} data-rg-if="${attrVal}"> & val=(${typeof val}) ${val} => tf: ${tf} -- outerHTML: ${elem.outerHTML}`, 'navy');
+      this._debug('rgIf', `rgIf:: <${elem.tagName} data-rg-if="${attrVal}"> => tf: ${tf} -- outerHTML: ${elem.outerHTML}`, 'navy');
     }
 
     this._debug('rgIf', '--------- rgIf (end) ------', 'navy', '#B6ECFF');
@@ -335,7 +331,7 @@ class DataRg extends DataRgListeners {
       if (!!funcDef) {
         // parse data-rg-spinner with the comparison operators: $not(), $eq(22), $ne(22), ...
         const { funcName, funcArgs } = this._funcParse(funcDef, elem);
-        tf = this._calcComparison(val, funcName, funcArgs);
+        tf = this._calcComparison$(val, funcName, funcArgs);
       } else {
         // parse data-rg-spinner without the comparison operators
         tf = !!val;
@@ -493,7 +489,7 @@ class DataRg extends DataRgListeners {
       if (!!funcDef) {
         // parse data-rg-disabled with the comparison operators: $not(), $eq(22), $ne(22), ...
         const { funcName, funcArgs } = this._funcParse(funcDef, elem);
-        tf = this._calcComparison(val, funcName, funcArgs);
+        tf = this._calcComparison$(val, funcName, funcArgs);
       } else {
         // parse data-rg-disabled without the comparison operators
         tf = !!val;

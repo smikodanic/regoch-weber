@@ -203,8 +203,10 @@ class DataRgCtrl extends Controller {
 
   runIF() {
     this.myNum = 5;
+    this.myBool = false;
     this.myStr = 'some str';
     this.myArr = [5, 4, 'lorem'];
+    this.$model.myStr_model = 'some str';
 
     this.$model.ifY = {
       bool: true,

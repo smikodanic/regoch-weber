@@ -199,17 +199,24 @@ class Aux {
   }
 
 
+  /***** COMPARISONS *****/
   /**
-   * Caclulate comparison operators.
-   * @param {any} val - the controller property value
-   * @param {string} funcName - the function name: $not, $eq, ...
-   * @param {any[]} funcArgs - function arguments (see _funcParse())
+   * Get true/false directly from the controller/model value: data-rg-if="is_active", data-rg-if="$model.is_active"
+   * Caclulate comparison with $ operators, simillar to mongoDB: data-rg-if="age $eq(18)", data-rg-if="age $eq(this.myAge)", data-rg-if="age $eq($model.myAge)"
+   * @param {any} attrVal - data-rg-if attribute value, for example: is_active, age $gt(this.ctrlProp), age $eq($model.myAge)
    * @returns {boolean}
    */
-  _calcComparison(val, funcName, funcArgs) {
-    let tf = !!val;
-    const arg = !!funcArgs.length ? this._typeConvertor(funcArgs[0]) : '';
+  _calcComparison_B(attrVal) {
+    const propCompSplitted = attrVal.split(/\s+\$/); // ['age', 'eq($model.myAge)']
 
+    const prop = propCompSplitted[0].trim(); // age
+    const val = this._getControllerValue(prop); // 33
+
+    const funcDef = propCompSplitted[1] ? '$' + propCompSplitted[1].trim() : undefined; // $eq($model.myAge)
+    const { funcName, funcArgs } = this._funcParse(funcDef); // funcName: $eq , funcArgs: [22]
+    const arg = !!funcArgs && !!funcArgs.length ? funcArgs[0] : undefined; // 22
+
+    let tf = !!val;
     if (funcName === '$not') { tf = !val; }
     else if (funcName === '$eq') { tf = val === arg; }
     else if (funcName === '$ne') { tf = val !== arg; }
@@ -226,31 +233,6 @@ class Aux {
     return tf;
   }
 
-
-  /**
-   * Convert string into integer, float or boolean.
-   * @param {string} value
-   * @returns {string | number | boolean | object}
-   */
-  _typeConvertor(value) {
-    function isJSON(value) {
-      try { JSON.parse(value); }
-      catch (err) { return false; }
-      return true;
-    }
-
-    if (!!value && !isNaN(value) && !/\./.test(value)) { // convert string into integer (12)
-      value = parseInt(value, 10);
-    } else if (!!value && !isNaN(value) && /\./.test(value)) { // convert string into float (12.35)
-      value = parseFloat(value);
-    } else if (value === 'true' || value === 'false') { // convert string into boolean (true)
-      value = JSON.parse(value);
-    } else if (isJSON(value)) {
-      value = JSON.parse(value);
-    }
-
-    return value;
-  }
 
 
   /***** FUNCTIONS *****/
@@ -290,6 +272,8 @@ class Aux {
    * @returns {{funcName:string, funcArgs:any[], funcArgsStr:string}
    */
   _funcParse(funcDef, elem, event) {
+    if (!funcDef) { return {}; }
+
     const matched = funcDef.match(/^(.+)\((.*)\)$/);
     if (!matched) { console.error(`_funcParseErr: Function "${funcDef}" has bad definition.`); return {}; }
     const funcName = matched[1] || ''; // function name: products.list
@@ -302,8 +286,9 @@ class Aux {
         if (arg === '$element') { arg = elem; }
         else if (arg === '$value') { arg = this._getElementValue(elem, true); }
         else if (arg === '$event') { arg = event; }
-        else if ((arg === 'true' || arg === 'false') && !/\'/.test(arg)) { arg = JSON.parse(arg); } // boolean
+        else if (/"|'/.test(arg)) { arg = arg.replace(/\'/g, ''); } // string
         else if (/^-?\d+\.?\d*$/.test(arg) && !/\'/.test(arg)) { arg = +arg; } // number
+        else if ((arg === 'true' || arg === 'false')) { arg = JSON.parse(arg); } // boolean
         else if (/^\/.+\/i?g?$/.test(arg)) { // if regular expression, for example in replace(/Some/i, 'some')
           const mat = arg.match(/^\/(.+)\/(i?g?)$/);
           arg = new RegExp(mat[1], mat[2]);
@@ -313,7 +298,11 @@ class Aux {
           const val = this._getControllerValue(prop);
           arg = val;
         }
-        if (!!arg && !!arg.replace) { arg = arg.replace(/\'/g, ''); }
+        else if (/^\$model\./.test(arg)) { // if contain this. i.e. controller property
+          const mprop = arg.replace(/^\$model\./, ''); // remove this.
+          const val = this._getModelValue(mprop);
+          arg = val;
+        }
         return arg;
       });
 
@@ -408,7 +397,6 @@ class Aux {
   }
 
 
-
   /**
    * Remove element with the specific data-rg-xyz-gen and data-rg-xyz-id attributes.
    * @param {Element} elem - original element
@@ -422,9 +410,6 @@ class Aux {
     const genElems = document.querySelectorAll(genAttr_sel);
     for (const genElem of genElems) { genElem.remove(); }
   }
-
-
-
 
 
   /**
@@ -507,11 +492,11 @@ class Aux {
 
 
   /**
- * Remove elements which has generated element as parent i.e. if the parent has data-rg-xyz-gen attribute then delete that parent.
- * @param {string} attrName - attribute name - 'data-rg-for'
- * @param {string|RegExp} attrValQuery - query the attribute value, for example: 'companies' , or /companies\.\$/i
- * @returns {void}
- */
+  * Remove elements which has generated element as parent i.e. if the parent has data-rg-xyz-gen attribute then delete that parent.
+  * @param {string} attrName - attribute name - 'data-rg-for'
+  * @param {string|RegExp} attrValQuery - query the attribute value, for example: 'companies' , or /companies\.\$/i
+  * @returns {void}
+  */
   _removeParentElements(attrName, attrValQuery) {
     let elems = document.querySelectorAll(`[${attrName}]`);
 
@@ -559,14 +544,7 @@ class Aux {
       elems = elems2;
     }
 
-    // remove elems with .$i01. in its data-rg- attribute. For example data-rg-print="users.$i0.name" must wait that .$i0. is resolved.
-    const elems_filtered = [];
-    for (const elem of elems) {
-      const attrVal = elem.getAttribute(attrName);
-      if (!/\.\$i\d+\./.test(attrVal)) { elems_filtered.push(elem); }
-    }
-
-    return elems_filtered;
+    return elems;
   }
 
 
@@ -603,6 +581,34 @@ class Aux {
     elems = elems_arr.map(elem_arr => elem_arr.elem);
 
     return elems;
+  }
+
+
+
+  /***** MISC *****/
+  /**
+   * Convert string into integer, float or boolean.
+   * @param {string} value
+   * @returns {string | number | boolean | object}
+   */
+  _typeConvertor(value) {
+    function isJSON(value) {
+      try { JSON.parse(value); }
+      catch (err) { return false; }
+      return true;
+    }
+
+    if (!!value && !isNaN(value) && !/\./.test(value)) { // convert string into integer (12)
+      value = parseInt(value, 10);
+    } else if (!!value && !isNaN(value) && /\./.test(value)) { // convert string into float (12.35)
+      value = parseFloat(value);
+    } else if (value === 'true' || value === 'false') { // convert string into boolean (true)
+      value = JSON.parse(value);
+    } else if (isJSON(value)) {
+      value = JSON.parse(value);
+    }
+
+    return value;
   }
 
 

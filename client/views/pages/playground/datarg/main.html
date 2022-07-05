@@ -15,11 +15,11 @@
   <button data-rg-click="runFOR2()">run FOR2 (priority: 1)</button> - initial array has no elements. Example with <b>@@priority</b> parameter and solveMath/ / method.
   <ul>
     <!-- All commented examples works ! -->
-    <!-- <li data-rg-for="$model.herbals"><span data-rg-print="$model.herbals.$i @@ append">skipNum:{{skipNum}} | $i | solveMath/$i + 1/ | solveMath/({{skipNum}} + $i) * 5/ |</span> </li> -->
+    <li data-rg-for="$model.herbals"><span data-rg-print="$model.herbals.$i @@ append">skipNum:{{skipNum}} | $i | solveMath/$i + 1/ | solveMath/({{skipNum}} + $i) * 5/ |</span> </li>
     <!-- <li data-rg-for="$model.herbals"><span data-rg-print="$model.herbals.$i0 @@ append">skipNum:{{skipNum}} | $i0 | solveMath/$i0 + 1/ | solveMath/({{skipNum}} + $i0) * 5/ |</span> </li> -->
     <!-- <li data-rg-for="$model.herbals @@ 0"><span data-rg-print="$model.herbals.$i0 @@ append">skipNum:{{skipNum}} | $i0 | solveMath/$i0 + 1/ | solveMath/({{skipNum}} + $i0) * 5/ |</span> </li> -->
     <!-- <li data-rg-for="$model.herbals @@ 0"><span data-rg-print="$model.herbals.$i @@ append">skipNum:{{skipNum}} | $i | solveMath/$i0 + 1/ | solveMath/({{skipNum}} + $i0) * 5/ |</span> </li> -->
-    <li data-rg-for="$model.herbals @@ 1"><span data-rg-print="$model.herbals.$i1 @@ append">skipNum:{{skipNum}} | $i1 | solveMath/$i1 + 1/ | solveMath/({{skipNum}} + $i1) * 5/ |</span> </li>
+    <!-- <li data-rg-for="$model.herbals @@ 1"><span data-rg-print="$model.herbals.$i1 @@ append">skipNum:{{skipNum}} | $i1 | solveMath/$i1 + 1/ | solveMath/({{skipNum}} + $i1) * 5/ |</span> </li> -->
   </ul>
 
 
@@ -121,9 +121,14 @@
   <i>Notice that initially ifY object is undefined</i>
   <br><button data-rg-click="runIF()">run IF</button>
   <br>1. ifY.bool <span data-rg-if="$model.ifY.bool" style="color:green">OK</span>
+  <br>1. ifY.bool $eq(true)<span data-rg-if="$model.ifY.bool $eq(true)" style="color:green">OK</span>
+  <br>1. ifY.bool $eq(this.myBool)<span data-rg-if="$model.ifY.bool $eq(this.myBool)" style="color:green">OK</span>
   <br>1. ifY.bool $not() <span data-rg-if="$model.ifY.bool $not()" style="color:green">OK</span>
   <br>2. ifY.str $eq(this.myStr) <span data-rg-if="$model.ifY.str $eq(this.myStr)" style="color:green">OK</span>
+  <br>2. ifY.str $eq(this.$model.myStr_model) <span data-rg-if="$model.ifY.str $eq(this.$model.myStr_model)" style="color:green">OK</span>
+  <br>2. ifY.str $eq($model.myStr_model) <span data-rg-if="$model.ifY.str $eq($model.myStr_model)" style="color:green">OK</span>
   <br>2. ifY.str $eq('some str') <span data-rg-if="$model.ifY.str $eq('some str')" style="color:green">OK</span>
+  <br>2. ifY.str $eq('') <span data-rg-if="$model.ifY.str $eq('')" style="color:green">OK</span>
   <br>3. ifY.num $eq(this.myNum) <span data-rg-if="$model.ifY.num $eq(this.myNum)" style="color:green">OK</span>
   <br>3. ifY.num $eq(5) <span data-rg-if="$model.ifY.num $eq(5)" style="color:green">OK</span>
   <br>4. ifY.num $lt(5.5) <span data-rg-if="$model.ifY.num $lt(5.5)" style="color:green">OK</span>
