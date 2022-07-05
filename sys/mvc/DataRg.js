@@ -320,24 +320,19 @@ class DataRg extends DataRgListeners {
     for (const elem of elems) {
       const attrVal = elem.getAttribute(attrName).trim(); // ifAge
       if (!attrVal) { console.error(`Attribute "data-rg-spinner" has bad definition (data-rg-spinner="${attrVal}").`); continue; }
-      const propComp = attrVal.trim(); // controller property with comparison function, for example: ifAge $eq(22)
-      const propCompSplitted = propComp.split(/\s+\$/);
 
-      const prop = propCompSplitted[0].trim(); // ifAge
-      const val = this._getControllerValue(prop);
-
-      const funcDef = propCompSplitted[1] ? '$' + propCompSplitted[1].trim() : undefined; // $eq(22)
-      let tf = !!val;
-      if (!!funcDef) {
-        // parse data-rg-spinner with the comparison operators: $not(), $eq(22), $ne(22), ...
-        const { funcName, funcArgs } = this._funcParse(funcDef, elem);
-        tf = this._calcComparison$(val, funcName, funcArgs);
+      /* define tf */
+      let tf = false;
+      if (/\!|<|>|=/.test(attrVal)) {
+        // parse data-rg-if with = < > && ||: data-rg-if="5<2", data-rg-if="$model.age >= $model.myAge", data-rg-if="this.age > 3" (this. will not be rendered)
+        tf = this._calcComparison_A(attrVal);
       } else {
-        // parse data-rg-spinner without the comparison operators
-        tf = !!val;
+        // parse data-rg-if with pure controller value: data-rg-if="is_active"
+        // parse data-rg-if with the comparison operators: $not(), $eq(22), $ne(22), ...  --> data-rg-if="age $eq(5)" , data-rg-if="$model.age $eq($model.myAge)", data-rg-if="$model.age $gt(this.myNum)"
+        tf = this._calcComparison_B(attrVal);
       }
 
-      // hide/show spinner
+      /* hide/show spinner */
       if (tf) {
         const styleScoped = `
         <span data-rg-spinner-gen>
@@ -478,24 +473,18 @@ class DataRg extends DataRgListeners {
       const attrVal = elem.getAttribute(attrName).trim(); // ifAge
       if (!attrVal) { console.error(`rgDisabled Error:: Attribute has bad definition (data-rg-disabled="${attrVal}").`); continue; }
 
-      const propComp = attrVal.trim(); // controller property with comparison function, for example: ifAge $eq(22)
-      const propCompSplitted = propComp.split(/\s+\$/);
-
-      const prop = propCompSplitted[0].trim(); // ifAge
-      const val = this._getControllerValue(prop);
-
-      const funcDef = propCompSplitted[1] ? '$' + propCompSplitted[1].trim() : undefined; // $eq(22)
-      let tf = !!val;
-      if (!!funcDef) {
-        // parse data-rg-disabled with the comparison operators: $not(), $eq(22), $ne(22), ...
-        const { funcName, funcArgs } = this._funcParse(funcDef, elem);
-        tf = this._calcComparison$(val, funcName, funcArgs);
+      /* define tf */
+      let tf = false;
+      if (/\!|<|>|=/.test(attrVal)) {
+        // parse data-rg-if with = < > && ||: data-rg-if="5<2", data-rg-if="$model.age >= $model.myAge", data-rg-if="this.age > 3" (this. will not be rendered)
+        tf = this._calcComparison_A(attrVal);
       } else {
-        // parse data-rg-disabled without the comparison operators
-        tf = !!val;
+        // parse data-rg-if with pure controller value: data-rg-if="is_active"
+        // parse data-rg-if with the comparison operators: $not(), $eq(22), $ne(22), ...  --> data-rg-if="age $eq(5)" , data-rg-if="$model.age $eq($model.myAge)", data-rg-if="$model.age $gt(this.myNum)"
+        tf = this._calcComparison_B(attrVal);
       }
 
-      // disable/enable the element
+      /* disable/enable the element */
       if (tf) { elem.disabled = true; }
       else { elem.disabled = false; }
 
