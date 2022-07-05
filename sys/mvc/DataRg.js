@@ -389,7 +389,7 @@ class DataRg extends DataRgListeners {
         elem.innerHTML = '';
       }
 
-      this._debug('rgSpinner', `rgSpinner:: <${elem.tagName} data-rg-spinner="${attrVal}"> & val=(${typeof val}) ${val} => tf: ${tf}`, 'navy');
+      this._debug('rgSpinner', `rgSpinner:: <${elem.tagName} data-rg-spinner="${attrVal}"> => tf: ${tf}`, 'navy');
     }
 
     this._debug('rgSpinner', '--------- rgSpinner (end) ------', 'navy', '#B6ECFF');
@@ -488,7 +488,7 @@ class DataRg extends DataRgListeners {
       if (tf) { elem.disabled = true; }
       else { elem.disabled = false; }
 
-      this._debug('rgDisabled', `rgDisabled:: data-rg-disabled="${attrVal}" & val=${val} => tf: ${tf} -- outerHTML: ${elem.outerHTML}`, 'navy');
+      this._debug('rgDisabled', `rgDisabled:: data-rg-disabled="${attrVal}" -- outerHTML: ${elem.outerHTML}`, 'navy');
     }
 
     this._debug('rgDisabled', '--------- rgDisabled (end) ------', 'navy', '#B6ECFF');
