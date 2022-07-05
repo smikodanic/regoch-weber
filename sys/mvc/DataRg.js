@@ -256,8 +256,8 @@ class DataRg extends DataRgListeners {
    * data-rg-if="<controllerProperty>"
    * Parse the "data-rg-if" attribute. Show or hide the HTML element by setting display:none.
    * Examples:
-   * data-rg-if="ifAge"
-   * data-rg-if="ifAge $eq(22)"
+   * data-rg-if="this.ifAge" - rend() will not be triggered when this.ifAge is changed
+   * data-rg-if="$model.ifAge $eq(22)" - rend() will be triggered when $model.ifAge is changed
    * @param {string|RegExp} attrValQuery - controller property name, query for the attribute value
    * @returns {void}
    */
@@ -277,11 +277,11 @@ class DataRg extends DataRgListeners {
       /* define tf */
       let tf = false;
       if (/\!|<|>|=/.test(attrVal)) {
-        // parse data-rg-if with ! = < > && ||: data-rg-if="5<2" data-rg-if="!{{age}}" , data-rg-if="{{age}} > 3" , data-rg-if="{{age}} >= {{$model.myAge}}"
+        // parse data-rg-if with = < > && ||: data-rg-if="5<2", data-rg-if="$model.age >= $model.myAge", data-rg-if="this.age > 3" (this. will not be rendered)
         tf = this._calcComparison_A(attrVal);
       } else {
         // parse data-rg-if with pure controller value: data-rg-if="is_active"
-        // parse data-rg-if with the comparison operators: $not(), $eq(22), $ne(22), ...  --> data-rg-if="age $eq(5)" , data-rg-if="age $eq($model.myAge)", data-rg-if="age $gt(this.myNum)"
+        // parse data-rg-if with the comparison operators: $not(), $eq(22), $ne(22), ...  --> data-rg-if="age $eq(5)" , data-rg-if="$model.age $eq($model.myAge)", data-rg-if="$model.age $gt(this.myNum)"
         tf = this._calcComparison_B(attrVal);
       }
 

@@ -201,15 +201,44 @@ class Aux {
 
   /***** COMPARISONS *****/
   /**
+   * Caclulate comparison with operators ! = < > && ||: data-rg-if="5 === 3", data-rg-if="this.age > this.myAge", data-rg-if="$model.age <= $model.myAge"
+   * @param {any} attrVal - data-rg-if attribute value, for example: 5===3,
+   * @returns {boolean}
+   */
+  _calcComparison_A(attrVal) {
+    const reg = new RegExp(`\\$model\\.${this.$rg.varnameChars}|this\\.${this.$rg.varnameChars}`, 'g');
+    const props = attrVal.match(reg) || []; // controller properties: ['this.age', '$model.age']
+
+    let expression = attrVal;
+    for (const prop of props) {
+      const prop2 = prop.trim().replace(/^this\./, '');
+      let val = this._getControllerValue(prop2);
+      if (typeof val === 'string') { val = `'${val}'`; }
+      // console.log(prop, val);
+      expression = expression.replace(prop, val);
+    }
+
+    let tf = false;
+    try {
+      tf = eval(expression);
+    } catch (err) {
+      console.error(`Bad expression "${attrVal}" --> ${expression}`);
+    }
+
+    // console.log(expression, '--', tf);
+    return tf;
+  }
+
+  /**
    * Get true/false directly from the controller/model value: data-rg-if="is_active", data-rg-if="$model.is_active"
-   * Caclulate comparison with $ operators, simillar to mongoDB: data-rg-if="age $eq(18)", data-rg-if="age $eq(this.myAge)", data-rg-if="age $eq($model.myAge)"
+   * Caclulate comparison with $ operators, simillar to mongoDB: data-rg-if="this.age $eq(18)", data-rg-if="age $eq(18)", data-rg-if="age $eq(this.myAge)", data-rg-if="age $eq($model.myAge)"
    * @param {any} attrVal - data-rg-if attribute value, for example: is_active, age $gt(this.ctrlProp), age $eq($model.myAge)
    * @returns {boolean}
    */
   _calcComparison_B(attrVal) {
-    const propCompSplitted = attrVal.split(/\s+\$/); // ['age', 'eq($model.myAge)']
+    const propCompSplitted = attrVal.split(/\s+\$/); // ['age', 'eq($model.myAge)'] or ['this.age', 'eq($model.myAge)']
 
-    const prop = propCompSplitted[0].trim(); // age
+    const prop = propCompSplitted[0].trim().replace(/^this\./, ''); // age
     const val = this._getControllerValue(prop); // 33
 
     const funcDef = propCompSplitted[1] ? '$' + propCompSplitted[1].trim() : undefined; // $eq($model.myAge)

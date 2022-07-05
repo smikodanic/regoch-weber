@@ -184,23 +184,6 @@ class DataRgCtrl extends Controller {
 
 
   /*********** NON-GENERATORS **********/
-
-  // toggle if and show hide elements
-  toggleIF() {
-    this.$model.ifX = !this.$model.ifX;
-    console.log('toggleIF::', this.$model.ifX);
-  }
-
-  // toggle text color by using data-rg-elem
-  runELEM() {
-    this.toggle = !this.toggle;
-    if (this.toggle) {
-      this.$rg.elems.myElem.style.color = 'blue';
-    } else {
-      this.$rg.elems.myElem.style.color = 'silver';
-    }
-  }
-
   runIF() {
     this.myNum = 5;
     this.myBool = false;
@@ -215,8 +198,40 @@ class DataRgCtrl extends Controller {
     };
   }
 
+
+  runIF2() {
+    this.myNum2 = 5;
+    this.myBool2 = false;
+    this.myStr2 = 'some str';
+    this.$model.myStr_model2 = 'some str';
+
+    this.$model.ifY2 = {
+      bool: true,
+      num: 5,
+      str: 'some str'
+    };
+  }
+
+
+  // toggle if and show hide elements
+  toggleIF() {
+    this.$model.ifX = !this.$model.ifX;
+    // console.log('toggleIF::', this.$model.ifX);
+  }
+
+
   async toggleIF2() {
     this.$model.continent = !!this.$model.continent ? '' : 'Europe';
+  }
+
+  // toggle text color by using data-rg-elem
+  runELEM() {
+    this.toggle = !this.toggle;
+    if (this.toggle) {
+      this.$rg.elems.myElem.style.color = 'blue';
+    } else {
+      this.$rg.elems.myElem.style.color = 'silver';
+    }
   }
 
 
