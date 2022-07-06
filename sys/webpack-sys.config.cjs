@@ -7,15 +7,20 @@ const { ESBuildMinifyPlugin } = require('esbuild-loader');
 
 module.exports = {
   mode: 'production',
-  entry: './sys/index.js',
+  entry: {
+    'index': './sys/index.js',
+    'index.min': './sys/index.js',
+  },
   output: {
-    path: path.resolve(__dirname),
-    filename: 'index.min.js',
+    path: path.resolve(__dirname, '_dist'),
+    filename: '[name].js',
+    clean: true // remove content of the directory defined in the output.path
   },
   devtool: 'source-map',
   optimization: {
     minimizer: [
       new ESBuildMinifyPlugin({
+        include: /\.min\.js$/,
         keepNames: true,
       }),
     ],
