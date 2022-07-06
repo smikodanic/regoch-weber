@@ -20,8 +20,8 @@ module.exports = {
   optimization: {
     minimizer: [
       new ESBuildMinifyPlugin({
-        include: /\.min\.js$/,
-        keepNames: true,
+        include: /\.min\.js$/, // minify only index.min.js
+        keepNames: true,  // keep function names https://esbuild.github.io/api/#keep-names
       }),
     ],
   },

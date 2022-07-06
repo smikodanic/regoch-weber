@@ -6,7 +6,7 @@ browser single page applications, mobile applications, browser extensions, elect
 - no slow compilation as in Angular, Vue or React (no compilation at all)
 - no npm package dependencies - build apps which will not depend on 3rd party code
 - no typescript, no heavy compiling, no bullshit
-- create lightweight applications - small app file size (~50kB only)
+- create lightweight applications - small app file size (<100kB only)
 - use import &amp; export <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Modules" target="_blank">ES Modules</a> to build complex apps with clear and readable code
 - Model-View-Controller (MVC), intuitive app structure
 - easy to learn and easy to use
@@ -28,65 +28,26 @@ $ npm install regoch-weber
 ```
 
 
-## Download the framework
+## Quickstart
+Download the regoch-weber source code. There is a simple example in the /client/ folder.
 ```bash
 $ git clone https://github.com/smikodanic/regoch-weber.git <projectName>
 $ cd <projectName>
-$ rm -rg .git
+
+// remove .git and start new one
+$ rm -rf .git
+$ git init
+
+// remove /sys/ folder
+$ npm install regoch-weber
+$ rm -rf sys
+--> replace all "import { App, syslib } from '/sys/index.js';" with  "import { App, syslib } from 'regoch-weber';"
+
+$ npm run dev-server   -> start the HTTP server
+$ npm run dev          -> watch the file changes
 ```
-
-The files with small example app is downloaded.
-Now you can start to build your app by changing HTML, CSS and JS files in "client" folders.
-In most cases there's no need to change files other files in other folders.
-
-
-
-## Webpack /sys
-Bundle and minify /sys/ files.
-```bash
-$ npx webpack --config sys/webpack-sys.config.js
-```
-After that include minified file in the client/app.html
-```html
-<body>
-  <div data-rg-view="#layout"></div>
-
-  <script src="/sys/index.min.js"></script>
-</body>
-```
-And use **regochWeber** global variable.
-```js
-class HomeCtrl extends regochWeber.sys.Controller {
-  ...
-}
-  ```
-
-
-
-## Webpack /client
-Import /sys files and bundle /client files with webpack.
-Bundle whole project.
-```bash
-$ npx webpack --config client/webpack-client.config.js
-```
-
-Then use it in the app.html
-```html
-<body>
-  <div data-rg-view="#layout"></div>
-
-  <script src="/client/app.min.js"></script>
-</body>
-```
-
-
-
-
-
-
-
-## Documentation
-[http://www.regoch.org/weber](http://www.regoch.org/weber)
+Run in the browser http://localhost:3333 .
+Now you can add/modify your routes, controllers, views, etc.
 
 
 
@@ -94,7 +55,7 @@ Then use it in the app.html
 
 ## Example
 ```javascript
-import { App, syslib } from '../sys/index.js';
+import { App, syslib } from 'regoch-weber';
 
 // conf
 import { $debugOpts } from './conf/index.js';
@@ -125,6 +86,10 @@ app</small>
   .routes(routes)
   .debugger($debugOpts);
 ```
+
+
+## Documentation
+[http://www.regoch.org/weber](http://www.regoch.org/weber)
 
 
 ### Licence

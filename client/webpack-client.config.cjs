@@ -7,17 +7,22 @@ const { ESBuildMinifyPlugin } = require('esbuild-loader');
 
 module.exports = {
   mode: 'production',
-  entry: './client/app.js',
+  entry: {
+    'app': './client/app.js',
+    'app.min': './client/app.js'
+  },
   output: {
-    path: path.resolve(__dirname), // /web/node/regoch/regoch-weber/client
-    filename: 'app.min.js',
+    path: path.resolve(__dirname, '_dist'), // /web/node/regoch/regoch-weber/client
+    filename: '[name].js',
+    clean: true // remove content of the directory defined in the output.path
   },
 
   devtool: 'source-map',
   optimization: {
     minimizer: [
       new ESBuildMinifyPlugin({
-        keepNames: true,
+        include: /\.min\.js$/, // minify only app.min.js
+        keepNames: true, // keep function names https://esbuild.github.io/api/#keep-names
       }),
     ],
   },
