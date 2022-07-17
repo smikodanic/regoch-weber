@@ -6,12 +6,13 @@ class Aux {
   /***** CONTROLLER PROPERTY GETTER/SETTER *****/
   /**
    * Get the controller property's value. For example controller's property is this.$model.firstName in JS and in HTML data-rg-print="$model.firstName"
-   * @param {string} prop - controller property name, for example: company.name, $model.car.color, $fridge.color
+   * @param {string} prop - controller property name, for example: company.name, this.company.name, $model.car.color, this.$model.car.color, $fridge.color, ...
    * @returns {any}
    */
   _getControllerValue(prop) {
     prop = this._solveInterpolated(prop); // first solve {{...}} brackets, for example: $model.pet___{{pets.$i0._id}} -> $model.pet___12345
     prop = this._solveMath(prop); // $model.pet___solveMath/{{ctrlProp}} + 1/ -> $model.pet___8
+    prop = prop.replace(/^this\./, '');
 
     const propSplitted = prop.split('.'); // ['company', 'name']
     const prop1 = propSplitted[0]; // company
@@ -312,26 +313,31 @@ class Aux {
       .split(',')
       .map(arg => {
         arg = arg.trim();
-        if (arg === '$element') { arg = elem; }
-        else if (arg === '$value') { arg = this._getElementValue(elem, true); }
-        else if (arg === '$event') { arg = event; }
-        else if (/"|'/.test(arg)) { arg = arg.replace(/\'/g, ''); } // string
-        else if (/^-?\d+\.?\d*$/.test(arg) && !/\'/.test(arg)) { arg = +arg; } // number
-        else if ((arg === 'true' || arg === 'false')) { arg = JSON.parse(arg); } // boolean
+        if (arg === '$element') { arg = elem; } // DOM HTMLElement: func($element)
+        else if (arg === '$value') { arg = this._getElementValue(elem, true); } // DOM HTMLElement value (INPUT, SELECT, TEXTAREA,...): func($value)
+        else if (arg === '$event') { arg = event; } // DOM Event: func($event)
+        else if (/"|'/.test(arg)) { arg = arg.replace(/\'/g, ''); } // string: func('some str', "some str")
+        else if (/^-?\d+\.?\d*$/.test(arg) && !/\'/.test(arg)) { arg = +arg; } // number: func(12, -12, -12.22)
+        else if ((arg === 'true' || arg === 'false')) { arg = JSON.parse(arg); } // boolean: func(true, false)
         else if (/^\/.+\/i?g?$/.test(arg)) { // if regular expression, for example in replace(/Some/i, 'some')
           const mat = arg.match(/^\/(.+)\/(i?g?)$/);
           arg = new RegExp(mat[1], mat[2]);
         }
-        else if (/^this\./.test(arg)) { // if contain this. i.e. controller property
-          const prop = arg.replace(/^this\./, ''); // remove this.
-          const val = this._getControllerValue(prop);
-          arg = val;
-        }
-        else if (/^\$model\./.test(arg)) { // if contain this. i.e. controller property
-          const mprop = arg.replace(/^\$model\./, ''); // remove this.
+        else if (/^\$model\./.test(arg)) { // model: func($model.cars)
+          const mprop = arg.replace(/^\$model\./, ''); // remove $model.
           const val = this._getModelValue(mprop);
           arg = val;
         }
+        else if (/^this\./.test(arg)) { // if contain this. i.e. controller property: func(this.pets)
+          const prop = arg.replace(/^this\./, ''); // remove this.
+          const val = this._getControllerValue(prop);
+          arg = val;
+        } else { // finally take it as controller property (without this.): func(pets)
+          const prop = arg;
+          const val = this._getControllerValue(prop);
+          arg = val;
+        }
+
         return arg;
       });
 
@@ -390,15 +396,15 @@ class Aux {
 
   /***** DOM ELEMENTS *****/
   /**
-   * Clone the original element and place new element in the element sibling position.
+   * Define new cloned element.
    * The original element gets data-rg-xyz-id , unique ID to distinguish the element from other data-rg-xyz elements on the page.
    * The cloned element gets data-rg-xyz-gen and data-rg-xyz-id attributes.
    * @param {Element} elem - original element
    * @param {string} attrName - attribute name: data-rg-for, data-rg-repeat, data-rg-print
    * @param {string} attrVal - attribute value: 'continent @@ append'
-   * @returns
+   * @returns {HTMLElement}
    */
-  _genElem_create(elem, attrName, attrVal) {
+  _genElem_define(elem, attrName, attrVal) {
     // hide the original data-rg-xyz (reference) element
     elem.style.display = 'none';
 
@@ -411,16 +417,12 @@ class Aux {
       uid = dataRgId; // if the uid is already assigned
     }
 
-
     // clone the data-rg-xyz element
     const newElem = elem.cloneNode(true);
     newElem.removeAttribute(attrName);
     newElem.setAttribute(`${attrName}-gen`, attrVal);
     newElem.setAttribute(`${attrName}-id`, uid);
     newElem.style.display = '';
-
-    // place newElem as sibling of the elem
-    elem.parentNode.insertBefore(newElem, elem.nextSibling);
 
     return newElem;
   }
@@ -451,7 +453,7 @@ class Aux {
       if (elem.type === 'textarea') { val = JSON.stringify(val, null, 2); }
       else { val = JSON.stringify(val); }
     }
-    elem.value = val;
+    elem.value = String(val);
     elem.setAttribute('value', val);
   }
 
@@ -473,7 +475,7 @@ class Aux {
       let i = 1;
       for (const elem of elems) {
         let v = elem.value;
-        if (convertType) { v = this._typeConvertor(elem.value); }
+        if (convertType) { v = this._stringTypeConvert(elem.value); }
         if (elem.checked) { valArr.push(v); val = valArr; }
         if (i === elems.length && !val) { val = []; }
         i++;
@@ -485,7 +487,7 @@ class Aux {
       let i = 1;
       for (const opt of opts) {
         let v = opt.value;
-        if (convertType) { v = this._typeConvertor(opt.value); }
+        if (convertType) { v = this._stringTypeConvert(opt.value); }
         valArr.push(v);
         val = valArr;
         if (i === opts.length && !val) { val = []; }
@@ -494,7 +496,7 @@ class Aux {
 
     } else if (elem.type === 'radio') {
       let v = elem.value;
-      if (convertType) { v = this._typeConvertor(elem.value); }
+      if (convertType) { v = this._stringTypeConvert(elem.value); }
       if (elem.checked) { val = v; }
 
     } else if (elem.type === 'number') {
@@ -512,7 +514,7 @@ class Aux {
 
     } else {
       let v = elem.value;
-      if (convertType) { v = this._typeConvertor(elem.value); }
+      if (convertType) { v = this._stringTypeConvert(elem.value); }
       val = v;
     }
 
@@ -616,11 +618,11 @@ class Aux {
 
   /***** MISC *****/
   /**
-   * Convert string into integer, float or boolean.
+   * Convert element.value (string) in integer, float, boolean or JSON.
    * @param {string} value
    * @returns {string | number | boolean | object}
    */
-  _typeConvertor(value) {
+  _stringTypeConvert(value) {
     function isJSON(value) {
       try { JSON.parse(value); }
       catch (err) { return false; }

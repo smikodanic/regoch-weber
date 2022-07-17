@@ -84,25 +84,29 @@ class DataRg extends DataRgListeners {
       const priority = !!attrValSplited[1] ? attrValSplited[1].trim() : 0;
 
       const prop = attrValSplited[0].trim();
-      const val = this._getControllerValue(prop);
+      const val = this._getControllerValue(prop); // Array
+
+      if (this._debug().rgFor) { console.log('rgFor -->', 'attrVal::', attrVal, ' | val::', val, ' priority::', priority); }
 
       // remove all gen elems
       this._genElem_remove(elem, attrName, attrVal);
 
-      if (this._debug().rgFor) { console.log('rgFor -->', 'attrVal::', attrVal, ' | val::', val, ' priority::', priority); }
+      // hide element if val is not defined
       if (!val || (!!val && !val.length)) { elem.style.display = 'none'; continue; }
 
-      // generate new element and place it in the sibling position
-      const newElem = this._genElem_create(elem, attrName, attrVal);
 
       // multiply new element by cloning and adding sibling elements
+      const newElem = this._genElem_define(elem, attrName, attrVal);
       const newElemsTotal = val.length;
       for (let i = 1; i <= newElemsTotal; i++) {
-        const i2 = newElemsTotal - i; // when newElemsTotal=4 then i2 has 3,2,1,0
+        // place newElem as sibling of the elem
         elem.parentNode.insertBefore(newElem, elem.nextSibling);
+
+        // solve outerHTML - $i0, {{ctrlProp}}, solveMath//
+        const i2 = newElemsTotal - i; // 3,2,1,0
         let outerHTML = this._solve_$i(i2, newElem.outerHTML, priority); // replace $i, $i1, $i12 with the number
         outerHTML = this._solveInterpolated(outerHTML); // parse interpolated text in the variable name, for example: pet_{{$model.pets.$i0._id}}
-        outerHTML = this._solveMath(outerHTML); // calculte for example solveMath/$i0 + 1/
+        outerHTML = this._solveMath(outerHTML);
         newElem.outerHTML = outerHTML;
       }
 
@@ -141,15 +145,17 @@ class DataRg extends DataRgListeners {
       // remove all gen elems
       this._genElem_remove(elem, attrName, attrVal);
 
-      // generate new element and place it in the sibling position
-      const newElem = this._genElem_create(elem, attrName, attrVal);
 
       // multiply element by cloning and adding sibling elements
-      const newElemsTotal = +val;
+      const newElem = this._genElem_define(elem, attrName, attrVal);
+      const newElemsTotal = val;
       for (let i = 1; i <= newElemsTotal; i++) {
-        const i2 = newElemsTotal - i; // 3,2,1,0
+        // place newElem as sibling of the elem
         elem.parentNode.insertBefore(newElem, elem.nextSibling);
-        let outerHTML = this._solve_$i(i2, newElem.outerHTML); // replace $i, $i1, $i12 with the number
+
+        // solve outerHTML - $in, {{ctrlProp}}, solveMath//
+        const i2 = newElemsTotal - i; // 3,2,1,0
+        let outerHTML = this._solve_$i(i2, newElem.outerHTML, ''); // replace $i, $i1, $i12 with the number
         outerHTML = this._solveInterpolated(outerHTML); // parse interpolated text in the variable name, for example: pet_{{$model.pets.$i0._id}}
         outerHTML = this._solveMath(outerHTML);
         newElem.outerHTML = outerHTML;
@@ -219,7 +225,10 @@ class DataRg extends DataRgListeners {
 
       // generate new element and place it in the sibling position
       let newElem;
-      if (act !== 'inner') { newElem = this._genElem_create(elem, attrName, attrVal); }
+      if (act !== 'inner') {
+        newElem = this._genElem_define(elem, attrName, attrVal);
+        elem.parentNode.insertBefore(newElem, elem.nextSibling);
+      }
 
 
       // load content in the element
@@ -288,7 +297,7 @@ class DataRg extends DataRgListeners {
       /* hide/show elem */
       if (tf) {
         const dataRgPrint_attrVal = elem.getAttribute('data-rg-print');
-        if (!!dataRgPrint_attrVal && /outer|sibling|prepend|append|inset/.test(dataRgPrint_attrVal)) { elem.style.display = 'none'; } // element with data-rg-print should stay hidden because of _genElem_create()
+        if (!!dataRgPrint_attrVal && /outer|sibling|prepend|append|inset/.test(dataRgPrint_attrVal)) { elem.style.display = 'none'; } // element with data-rg-print should stay hidden because of _genElem_define()
         else { elem.style.display = ''; }
       } else {
         elem.style.display = 'none';

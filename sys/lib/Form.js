@@ -125,7 +125,7 @@ class Form {
     for (const elem of elems) {
       if (elem.type === 'checkbox') {
         let v = elem.value;
-        if (convertType) { v = this._typeConvertor(elem.value); }
+        if (convertType) { v = this._stringTypeConvert(elem.value); }
         if (elem.checked) { valArr.push(v); val = valArr; }
         if (i === elems.length && !val) { val = []; }
 
@@ -133,7 +133,7 @@ class Form {
         const opts = elem.selectedOptions; // selected options
         for (const opt of opts) {
           let v = opt.value;
-          if (convertType) { v = this._typeConvertor(opt.value); }
+          if (convertType) { v = this._stringTypeConvert(opt.value); }
           valArr.push(v);
           val = valArr;
         }
@@ -141,7 +141,7 @@ class Form {
 
       } else if (elem.type === 'radio') {
         let v = elem.value;
-        if (convertType) { v = this._typeConvertor(elem.value); }
+        if (convertType) { v = this._stringTypeConvert(elem.value); }
         if (elem.checked) { val = v; }
 
       } else if (elem.type === 'number') {
@@ -158,7 +158,7 @@ class Form {
 
       } else {
         let v = elem.value;
-        if (convertType) { v = this._typeConvertor(elem.value); }
+        if (convertType) { v = this._stringTypeConvert(elem.value); }
         val = v;
       }
       i++;
@@ -236,7 +236,7 @@ class Form {
    * @param {string} value
    * @returns {string | number | boolean | object}
    */
-  _typeConvertor(value) {
+  _stringTypeConvert(value) {
     function isJSON(str) {
       try { JSON.parse(str); }
       catch (err) { return false; }

@@ -367,12 +367,13 @@ class Aux {
   /***** CONTROLLER PROPERTY GETTER/SETTER *****/
   /**
    * Get the controller property's value. For example controller's property is this.$model.firstName in JS and in HTML data-rg-print="$model.firstName"
-   * @param {string} prop - controller property name, for example: company.name, $model.car.color, $fridge.color
+   * @param {string} prop - controller property name, for example: company.name, this.company.name, $model.car.color, this.$model.car.color, $fridge.color, ...
    * @returns {any}
    */
   _getControllerValue(prop) {
     prop = this._solveInterpolated(prop); // first solve {{...}} brackets, for example: $model.pet___{{pets.$i0._id}} -> $model.pet___12345
     prop = this._solveMath(prop); // $model.pet___solveMath/{{ctrlProp}} + 1/ -> $model.pet___8
+    prop = prop.replace(/^this\./, '');
 
     const propSplitted = prop.split('.'); // ['company', 'name']
     const prop1 = propSplitted[0]; // company
@@ -673,26 +674,31 @@ class Aux {
       .split(',')
       .map(arg => {
         arg = arg.trim();
-        if (arg === '$element') { arg = elem; }
-        else if (arg === '$value') { arg = this._getElementValue(elem, true); }
-        else if (arg === '$event') { arg = event; }
-        else if (/"|'/.test(arg)) { arg = arg.replace(/\'/g, ''); } // string
-        else if (/^-?\d+\.?\d*$/.test(arg) && !/\'/.test(arg)) { arg = +arg; } // number
-        else if ((arg === 'true' || arg === 'false')) { arg = JSON.parse(arg); } // boolean
+        if (arg === '$element') { arg = elem; } // DOM HTMLElement: func($element)
+        else if (arg === '$value') { arg = this._getElementValue(elem, true); } // DOM HTMLElement value (INPUT, SELECT, TEXTAREA,...): func($value)
+        else if (arg === '$event') { arg = event; } // DOM Event: func($event)
+        else if (/"|'/.test(arg)) { arg = arg.replace(/\'/g, ''); } // string: func('some str', "some str")
+        else if (/^-?\d+\.?\d*$/.test(arg) && !/\'/.test(arg)) { arg = +arg; } // number: func(12, -12, -12.22)
+        else if ((arg === 'true' || arg === 'false')) { arg = JSON.parse(arg); } // boolean: func(true, false)
         else if (/^\/.+\/i?g?$/.test(arg)) { // if regular expression, for example in replace(/Some/i, 'some')
           const mat = arg.match(/^\/(.+)\/(i?g?)$/);
           arg = new RegExp(mat[1], mat[2]);
         }
-        else if (/^this\./.test(arg)) { // if contain this. i.e. controller property
-          const prop = arg.replace(/^this\./, ''); // remove this.
-          const val = this._getControllerValue(prop);
-          arg = val;
-        }
-        else if (/^\$model\./.test(arg)) { // if contain this. i.e. controller property
-          const mprop = arg.replace(/^\$model\./, ''); // remove this.
+        else if (/^\$model\./.test(arg)) { // model: func($model.cars)
+          const mprop = arg.replace(/^\$model\./, ''); // remove $model.
           const val = this._getModelValue(mprop);
           arg = val;
         }
+        else if (/^this\./.test(arg)) { // if contain this. i.e. controller property: func(this.pets)
+          const prop = arg.replace(/^this\./, ''); // remove this.
+          const val = this._getControllerValue(prop);
+          arg = val;
+        } else { // finally take it as controller property (without this.): func(pets)
+          const prop = arg;
+          const val = this._getControllerValue(prop);
+          arg = val;
+        }
+
         return arg;
       });
 
@@ -751,15 +757,15 @@ class Aux {
 
   /***** DOM ELEMENTS *****/
   /**
-   * Clone the original element and place new element in the element sibling position.
+   * Define new cloned element.
    * The original element gets data-rg-xyz-id , unique ID to distinguish the element from other data-rg-xyz elements on the page.
    * The cloned element gets data-rg-xyz-gen and data-rg-xyz-id attributes.
    * @param {Element} elem - original element
    * @param {string} attrName - attribute name: data-rg-for, data-rg-repeat, data-rg-print
    * @param {string} attrVal - attribute value: 'continent @@ append'
-   * @returns
+   * @returns {HTMLElement}
    */
-  _genElem_create(elem, attrName, attrVal) {
+  _genElem_define(elem, attrName, attrVal) {
     // hide the original data-rg-xyz (reference) element
     elem.style.display = 'none';
 
@@ -772,16 +778,12 @@ class Aux {
       uid = dataRgId; // if the uid is already assigned
     }
 
-
     // clone the data-rg-xyz element
     const newElem = elem.cloneNode(true);
     newElem.removeAttribute(attrName);
     newElem.setAttribute(`${attrName}-gen`, attrVal);
     newElem.setAttribute(`${attrName}-id`, uid);
     newElem.style.display = '';
-
-    // place newElem as sibling of the elem
-    elem.parentNode.insertBefore(newElem, elem.nextSibling);
 
     return newElem;
   }
@@ -812,7 +814,7 @@ class Aux {
       if (elem.type === 'textarea') { val = JSON.stringify(val, null, 2); }
       else { val = JSON.stringify(val); }
     }
-    elem.value = val;
+    elem.value = String(val);
     elem.setAttribute('value', val);
   }
 
@@ -834,7 +836,7 @@ class Aux {
       let i = 1;
       for (const elem of elems) {
         let v = elem.value;
-        if (convertType) { v = this._typeConvertor(elem.value); }
+        if (convertType) { v = this._stringTypeConvert(elem.value); }
         if (elem.checked) { valArr.push(v); val = valArr; }
         if (i === elems.length && !val) { val = []; }
         i++;
@@ -846,7 +848,7 @@ class Aux {
       let i = 1;
       for (const opt of opts) {
         let v = opt.value;
-        if (convertType) { v = this._typeConvertor(opt.value); }
+        if (convertType) { v = this._stringTypeConvert(opt.value); }
         valArr.push(v);
         val = valArr;
         if (i === opts.length && !val) { val = []; }
@@ -855,7 +857,7 @@ class Aux {
 
     } else if (elem.type === 'radio') {
       let v = elem.value;
-      if (convertType) { v = this._typeConvertor(elem.value); }
+      if (convertType) { v = this._stringTypeConvert(elem.value); }
       if (elem.checked) { val = v; }
 
     } else if (elem.type === 'number') {
@@ -873,7 +875,7 @@ class Aux {
 
     } else {
       let v = elem.value;
-      if (convertType) { v = this._typeConvertor(elem.value); }
+      if (convertType) { v = this._stringTypeConvert(elem.value); }
       val = v;
     }
 
@@ -977,11 +979,11 @@ class Aux {
 
   /***** MISC *****/
   /**
-   * Convert string into integer, float or boolean.
+   * Convert element.value (string) in integer, float, boolean or JSON.
    * @param {string} value
    * @returns {string | number | boolean | object}
    */
-  _typeConvertor(value) {
+  _stringTypeConvert(value) {
     function isJSON(value) {
       try { JSON.parse(value); }
       catch (err) { return false; }
@@ -1345,6 +1347,7 @@ class DataRgListeners extends Aux/* default */.Z {
    * This is a shortcut of rgSet and rgValue, for example <input type="text" data-rg-input="product" data-rg-set="product"> is <input type="text" data-rg-model="product">
    * Example:
    * data-rg-model="product.name"
+   * data-rg-model="$model.product.name"  --> $model. should be omitted althought it will not cause issue
    * data-rg-model="product.price @@ convertType" -> will convert price to number
    * data-rg-model="product.price @@ convertTypeDont" -> will not convert price to number, it will stay string
    * @returns {void}
@@ -1483,25 +1486,29 @@ class DataRg extends mvc_DataRgListeners {
       const priority = !!attrValSplited[1] ? attrValSplited[1].trim() : 0;
 
       const prop = attrValSplited[0].trim();
-      const val = this._getControllerValue(prop);
+      const val = this._getControllerValue(prop); // Array
+
+      if (this._debug().rgFor) { console.log('rgFor -->', 'attrVal::', attrVal, ' | val::', val, ' priority::', priority); }
 
       // remove all gen elems
       this._genElem_remove(elem, attrName, attrVal);
 
-      if (this._debug().rgFor) { console.log('rgFor -->', 'attrVal::', attrVal, ' | val::', val, ' priority::', priority); }
+      // hide element if val is not defined
       if (!val || (!!val && !val.length)) { elem.style.display = 'none'; continue; }
 
-      // generate new element and place it in the sibling position
-      const newElem = this._genElem_create(elem, attrName, attrVal);
 
       // multiply new element by cloning and adding sibling elements
+      const newElem = this._genElem_define(elem, attrName, attrVal);
       const newElemsTotal = val.length;
       for (let i = 1; i <= newElemsTotal; i++) {
-        const i2 = newElemsTotal - i; // when newElemsTotal=4 then i2 has 3,2,1,0
+        // place newElem as sibling of the elem
         elem.parentNode.insertBefore(newElem, elem.nextSibling);
+
+        // solve outerHTML - $i0, {{ctrlProp}}, solveMath//
+        const i2 = newElemsTotal - i; // 3,2,1,0
         let outerHTML = this._solve_$i(i2, newElem.outerHTML, priority); // replace $i, $i1, $i12 with the number
         outerHTML = this._solveInterpolated(outerHTML); // parse interpolated text in the variable name, for example: pet_{{$model.pets.$i0._id}}
-        outerHTML = this._solveMath(outerHTML); // calculte for example solveMath/$i0 + 1/
+        outerHTML = this._solveMath(outerHTML);
         newElem.outerHTML = outerHTML;
       }
 
@@ -1540,15 +1547,17 @@ class DataRg extends mvc_DataRgListeners {
       // remove all gen elems
       this._genElem_remove(elem, attrName, attrVal);
 
-      // generate new element and place it in the sibling position
-      const newElem = this._genElem_create(elem, attrName, attrVal);
 
       // multiply element by cloning and adding sibling elements
-      const newElemsTotal = +val;
+      const newElem = this._genElem_define(elem, attrName, attrVal);
+      const newElemsTotal = val;
       for (let i = 1; i <= newElemsTotal; i++) {
-        const i2 = newElemsTotal - i; // 3,2,1,0
+        // place newElem as sibling of the elem
         elem.parentNode.insertBefore(newElem, elem.nextSibling);
-        let outerHTML = this._solve_$i(i2, newElem.outerHTML); // replace $i, $i1, $i12 with the number
+
+        // solve outerHTML - $in, {{ctrlProp}}, solveMath//
+        const i2 = newElemsTotal - i; // 3,2,1,0
+        let outerHTML = this._solve_$i(i2, newElem.outerHTML, ''); // replace $i, $i1, $i12 with the number
         outerHTML = this._solveInterpolated(outerHTML); // parse interpolated text in the variable name, for example: pet_{{$model.pets.$i0._id}}
         outerHTML = this._solveMath(outerHTML);
         newElem.outerHTML = outerHTML;
@@ -1618,7 +1627,10 @@ class DataRg extends mvc_DataRgListeners {
 
       // generate new element and place it in the sibling position
       let newElem;
-      if (act !== 'inner') { newElem = this._genElem_create(elem, attrName, attrVal); }
+      if (act !== 'inner') {
+        newElem = this._genElem_define(elem, attrName, attrVal);
+        elem.parentNode.insertBefore(newElem, elem.nextSibling);
+      }
 
 
       // load content in the element
@@ -1687,7 +1699,7 @@ class DataRg extends mvc_DataRgListeners {
       /* hide/show elem */
       if (tf) {
         const dataRgPrint_attrVal = elem.getAttribute('data-rg-print');
-        if (!!dataRgPrint_attrVal && /outer|sibling|prepend|append|inset/.test(dataRgPrint_attrVal)) { elem.style.display = 'none'; } // element with data-rg-print should stay hidden because of _genElem_create()
+        if (!!dataRgPrint_attrVal && /outer|sibling|prepend|append|inset/.test(dataRgPrint_attrVal)) { elem.style.display = 'none'; } // element with data-rg-print should stay hidden because of _genElem_define()
         else { elem.style.display = ''; }
       } else {
         elem.style.display = 'none';
@@ -2940,6 +2952,7 @@ var lib_namespaceObject = {};
 __webpack_require__.r(lib_namespaceObject);
 __webpack_require__.d(lib_namespaceObject, {
   "Auth": () => (lib_Auth),
+  "BrowserStorage": () => (lib_BrowserStorage),
   "Cookie": () => (lib_Cookie),
   "Form": () => (lib_Form),
   "HTTPClient": () => (lib_HTTPClient),
@@ -3186,7 +3199,7 @@ class RegochRouter {
    * @param {string} value
    * @returns {string | number | boolean | object}
    */
-  _typeConvertor(value) {
+  _stringTypeConvert(value) {
     function isJSON(str) {
       try { JSON.parse(str); }
       catch (err) { return false; }
@@ -3223,7 +3236,7 @@ class RegochRouter {
       property = eqParts[0];
       value = eqParts[1];
 
-      value = this._typeConvertor(value); // t y p e   c o n v e r s i o n
+      value = this._stringTypeConvert(value); // t y p e   c o n v e r s i o n
 
       queryObject[property] = value;
     });
@@ -3286,7 +3299,7 @@ class RegochRouter {
         const property = routePart.replace(/^\:/, ''); // remove :
 
         let value = uriParts[index];
-        value = this._typeConvertor(value); // t y p e   c o n v e r s i o n
+        value = this._stringTypeConvert(value); // t y p e   c o n v e r s i o n
 
         params[property] = value;
       }
@@ -5337,7 +5350,7 @@ class Form {
     for (const elem of elems) {
       if (elem.type === 'checkbox') {
         let v = elem.value;
-        if (convertType) { v = this._typeConvertor(elem.value); }
+        if (convertType) { v = this._stringTypeConvert(elem.value); }
         if (elem.checked) { valArr.push(v); val = valArr; }
         if (i === elems.length && !val) { val = []; }
 
@@ -5345,7 +5358,7 @@ class Form {
         const opts = elem.selectedOptions; // selected options
         for (const opt of opts) {
           let v = opt.value;
-          if (convertType) { v = this._typeConvertor(opt.value); }
+          if (convertType) { v = this._stringTypeConvert(opt.value); }
           valArr.push(v);
           val = valArr;
         }
@@ -5353,7 +5366,7 @@ class Form {
 
       } else if (elem.type === 'radio') {
         let v = elem.value;
-        if (convertType) { v = this._typeConvertor(elem.value); }
+        if (convertType) { v = this._stringTypeConvert(elem.value); }
         if (elem.checked) { val = v; }
 
       } else if (elem.type === 'number') {
@@ -5370,7 +5383,7 @@ class Form {
 
       } else {
         let v = elem.value;
-        if (convertType) { v = this._typeConvertor(elem.value); }
+        if (convertType) { v = this._stringTypeConvert(elem.value); }
         val = v;
       }
       i++;
@@ -5448,7 +5461,7 @@ class Form {
    * @param {string} value
    * @returns {string | number | boolean | object}
    */
-  _typeConvertor(value) {
+  _stringTypeConvert(value) {
     function isJSON(str) {
       try { JSON.parse(str); }
       catch (err) { return false; }
@@ -5479,6 +5492,148 @@ class Form {
 }
 
 /* harmony default export */ const lib_Form = (Form);
+
+;// CONCATENATED MODULE: ./sys/lib/BrowserStorage.js
+/**
+interface BrowserStorageOpts {
+  storageType: 'local'|'session'  // default is localStorage
+}
+ */
+
+class BrowserStorage {
+
+  /**
+   * @param {BrowserStorageOpts} browserStorageOpts - localStorage or sessionStorage options
+   * @param {boolean} debug - show debug info
+   */
+  constructor(browserStorageOpts, debug) {
+    if (!window) { throw new Error('The "window" object is undefined. Run it in the browser environment.'); }
+
+    this.browserStorageOpts = browserStorageOpts;
+    this.debug = debug;
+
+    if (browserStorageOpts.storageType === 'session') { this.storage = window.sessionStorage; }
+    else { this.storage = window.localStorage; }
+  }
+
+
+  /**
+   * Set local or session storage.
+   * The input value can be of any type and it's saved as string.
+   * @param {string} name - storage name
+   * @param {any} value - storage value
+   * @returns {void}
+   */
+  put(name, value) {
+    this.storage.setItem(name, value);
+    if (this.debug) { console.log(`${this.browserStorageOpts.storageType}-put(): ${name} = ${value}`); }
+  }
+
+
+  /**
+   * Set local or session storage.
+   * The input value is object and it's saved as string.
+   * @param {string} name - storage name
+   * @param {object} valueObj - storage value (object)
+   * @returns {void}
+   */
+  putObject(name, valueObj) {
+    const value = JSON.stringify(valueObj);
+    this.storage.setItem(name, value);
+    if (this.debug) { console.log(`${this.browserStorageOpts.storageType}-putObject(): ${name} = ${value.toString()}`); }
+  }
+
+
+  /**
+   * Get all storage values and return it as array of objects.
+   * @returns {array}
+   */
+  getAll() {
+    const storageObjs = [];
+    for (const [key, val] of Object.entries(this.storage)) {
+      storageObjs.push({ [key]: val });
+      if (this.debug) {
+        (typeof val === 'object') ? console.log(`${this.browserStorageOpts.storageType}-getAll(): ${key} = ${JSON.stringify(val)}`) : console.log(`${this.browserStorageOpts.storageType}-getAll: ${key} = ${val}`);
+      }
+    }
+    return storageObjs;
+  }
+
+
+  /**
+   * Get a storage value by specific name. Returned value is string.
+   * @param {string} name - storage name
+   * @returns {string}
+   */
+  get(name) {
+    const value = this.storage.getItem(name) || '';
+    if (this.debug) { console.log(`${this.browserStorageOpts.storageType}-get(): ${name} = `, value); }
+    return value;
+  }
+
+
+  /**
+   * Get a storage value by specific name. Returned value is object.
+   * @param {string} name - storage name
+   * @returns {object}
+   */
+  getObject(name) {
+    const value = this.storage.getItem(name) || '';
+
+    // convert storage string value to object
+    let valueObj = null;
+    try {
+      if (value !== 'undefined' && !!value) {
+        valueObj = JSON.parse(value);
+      }
+    } catch (err) {
+      console.error(`${this.browserStorageOpts.storageType}-getObject(): Storage value has invalid JSON and can not be converted to Object. Use get() method instead getObject() !`);
+    }
+
+    // debug
+    if (this.debug) {
+      console.log(`${this.browserStorageOpts.storageType}-getObject():value:`, value);
+      console.log(`${this.browserStorageOpts.storageType}-getObject():valueObj:`, valueObj);
+    }
+
+    return valueObj;
+  }
+
+
+  /**
+   * Remove storage by specific name.
+   * @param {string} name - storage name
+   * @returns {void}
+   */
+  remove(name) {
+    this.storage.removeItem(name);
+    if (this.debug) { console.log(`${this.browserStorageOpts.storageType}-remove():`, name, ' is deleted.'); }
+  }
+
+
+  /**
+   * Remove all storage values.
+   * @returns {void}
+   */
+  removeAll() {
+    this.storage.clear();
+  }
+
+
+  /**
+   * Check if storage exists.
+   * @param {string} name - storage name
+   * @return boolean
+   */
+  exists(name) {
+    const value = this.storage.getItem(name) || '';
+    return !!value;
+  }
+
+}
+
+
+/* harmony default export */ const lib_BrowserStorage = (BrowserStorage);
 
 ;// CONCATENATED MODULE: ./sys/lib/Paginator.js
 class Paginator {
@@ -5604,7 +5759,9 @@ const util = new Util();
 
 
 
+
 ;// CONCATENATED MODULE: ./sys/index.js
+
 
 
 
@@ -6140,7 +6297,7 @@ class DataRgCtrl extends mvc_Controller {
     this.$model.obj4json = { x: 555 };
 
     // text with the HTML
-    this.$model.htmlText = 'The best <b style="color:red">man</b> friend is: <i data-rg-if="$model.bestFriend $not()">NOBODY</i> <i data-rg-if="$model.bestFriend $eq(Dog)">DOG</i>';
+    this.$model.htmlText = `The best <b style="color:red">man</b> friend is: <i data-rg-if="$model.bestFriend $ne('Dog')">NOBODY</i> <i data-rg-if="$model.bestFriend $eq('Dog')">DOG</i>`;
 
     // initial value for the data-rg-model
     this.$model.myMDL = { name: 'Smokie', animal: 'horse', article: 'Lorem ipsumus ...' };
@@ -6607,6 +6764,74 @@ class CookieCtrl extends mvc_Controller {
 
 
 /* harmony default export */ const playground_CookieCtrl = (CookieCtrl);
+
+;// CONCATENATED MODULE: ./client/controllers/playground/BrowserStorageCtrl.js
+
+
+
+class BrowserStorageCtrl extends mvc_Controller {
+
+  constructor(app) {
+    super();
+  }
+
+  async loader(trx) {
+    this.setTitle('BrowserStorage Test');
+    await this.loadView('#layout', 'pages/playground/browserstorage/main.html', 'inner');
+  }
+
+  async init() {
+    this.sLocal = new lib_BrowserStorage({ storageType: 'local' }, true);
+    this.sSess = new lib_BrowserStorage({ storageType: 'session' }, true);
+  }
+
+
+  test_put() {
+    console.log(this.first_name);
+    this.sLocal.put('first_name', this.first_name);
+    this.sSess.put('first_name', this.first_name);
+  }
+
+  test_putObject() {
+    console.log(this.some_obj);
+    this.sLocal.putObject('some_obj', this.some_obj);
+    this.sSess.putObject('some_obj', this.some_obj);
+  }
+
+  test_getAll() {
+    this.$model.localStorageValues = this.sLocal.getAll();
+    console.log('LOCAL:', this.$model.localStorageValues);
+    this.$model.sessionStorageValues = this.sSess.getAll();
+    console.log('SESS:', this.$model.sessionStorageValues);
+  }
+
+  test_get() {
+    this.$model.localStorageVal = this.sLocal.get(this.storageName);
+    this.$model.sessionStorageVal = this.sSess.get(this.storageName);
+  }
+
+  test_getObject() {
+    this.$model.localStorageVal2 = this.sLocal.getObject(this.storageName2);
+    this.$model.sessionStorageVal2 = this.sSess.getObject(this.storageName2);
+  }
+
+  test_remove() {
+    this.sLocal.remove(this.storageName3);
+    this.sSess.remove(this.storageName3);
+  }
+
+  test_removeAll() {
+    this.sLocal.removeAll();
+    this.sSess.removeAll();
+  }
+
+
+
+
+}
+
+
+/* harmony default export */ const playground_BrowserStorageCtrl = (BrowserStorageCtrl);
 
 ;// CONCATENATED MODULE: ./client/controllers/playground/FormCtrl.js
 
@@ -7141,6 +7366,7 @@ console.log('env::', env);
 
 
 
+
 // routes
 const routes = [
   ['when', '/', 'HomeCtrl'],
@@ -7157,6 +7383,7 @@ const routes = [
   ['when', '/playground/datarg', 'DataRgCtrl'],
   ['when', '/playground/datarglisteners', 'DataRgListenersCtrl'],
   ['when', '/playground/cookie', 'CookieCtrl'],
+  ['when', '/playground/browserstorage', 'BrowserStorageCtrl'],
   ['when', '/playground/form', 'FormCtrl'],
 
   ['when', '/playground/login', 'LoginCtrl', { authGuards: ['autoLogin'] }],
@@ -7205,6 +7432,7 @@ app
     playground_DataRgCtrl,
     playground_DataRgListenersCtrl,
     playground_CookieCtrl,
+    playground_BrowserStorageCtrl,
     playground_FormCtrl,
 
     playground_LoginCtrl,

@@ -278,6 +278,7 @@ class DataRgListeners extends Aux {
    * This is a shortcut of rgSet and rgValue, for example <input type="text" data-rg-input="product" data-rg-set="product"> is <input type="text" data-rg-model="product">
    * Example:
    * data-rg-model="product.name"
+   * data-rg-model="$model.product.name"  --> $model. should be omitted althought it will not cause issue
    * data-rg-model="product.price @@ convertType" -> will convert price to number
    * data-rg-model="product.price @@ convertTypeDont" -> will not convert price to number, it will stay string
    * @returns {void}

@@ -234,7 +234,7 @@ class RegochRouter {
    * @param {string} value
    * @returns {string | number | boolean | object}
    */
-  _typeConvertor(value) {
+  _stringTypeConvert(value) {
     function isJSON(str) {
       try { JSON.parse(str); }
       catch (err) { return false; }
@@ -271,7 +271,7 @@ class RegochRouter {
       property = eqParts[0];
       value = eqParts[1];
 
-      value = this._typeConvertor(value); // t y p e   c o n v e r s i o n
+      value = this._stringTypeConvert(value); // t y p e   c o n v e r s i o n
 
       queryObject[property] = value;
     });
@@ -334,7 +334,7 @@ class RegochRouter {
         const property = routePart.replace(/^\:/, ''); // remove :
 
         let value = uriParts[index];
-        value = this._typeConvertor(value); // t y p e   c o n v e r s i o n
+        value = this._stringTypeConvert(value); // t y p e   c o n v e r s i o n
 
         params[property] = value;
       }

@@ -59,7 +59,7 @@ class DataRgCtrl extends Controller {
     this.$model.obj4json = { x: 555 };
 
     // text with the HTML
-    this.$model.htmlText = 'The best <b style="color:red">man</b> friend is: <i data-rg-if="$model.bestFriend $not()">NOBODY</i> <i data-rg-if="$model.bestFriend $eq(Dog)">DOG</i>';
+    this.$model.htmlText = `The best <b style="color:red">man</b> friend is: <i data-rg-if="$model.bestFriend $ne('Dog')">NOBODY</i> <i data-rg-if="$model.bestFriend $eq('Dog')">DOG</i>`;
 
     // initial value for the data-rg-model
     this.$model.myMDL = { name: 'Smokie', animal: 'horse', article: 'Lorem ipsumus ...' };

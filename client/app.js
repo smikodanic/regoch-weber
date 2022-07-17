@@ -25,6 +25,7 @@ import View_lazyJSCtrl from '/client/controllers/playground/View_lazyJSCtrl.js';
 import DataRgCtrl from '/client/controllers/playground/DataRgCtrl.js';
 import DataRgListenersCtrl from '/client/controllers/playground/DataRgListenersCtrl.js';
 import CookieCtrl from '/client/controllers/playground/CookieCtrl.js';
+import BrowserStorageCtrl from '/client/controllers/playground/BrowserStorageCtrl.js';
 import FormCtrl from '/client/controllers/playground/FormCtrl.js';
 
 import LoginCtrl from '/client/controllers/playground/LoginCtrl.js';
@@ -56,6 +57,7 @@ const routes = [
   ['when', '/playground/datarg', 'DataRgCtrl'],
   ['when', '/playground/datarglisteners', 'DataRgListenersCtrl'],
   ['when', '/playground/cookie', 'CookieCtrl'],
+  ['when', '/playground/browserstorage', 'BrowserStorageCtrl'],
   ['when', '/playground/form', 'FormCtrl'],
 
   ['when', '/playground/login', 'LoginCtrl', { authGuards: ['autoLogin'] }],
@@ -104,6 +106,7 @@ app
     DataRgCtrl,
     DataRgListenersCtrl,
     CookieCtrl,
+    BrowserStorageCtrl,
     FormCtrl,
 
     LoginCtrl,

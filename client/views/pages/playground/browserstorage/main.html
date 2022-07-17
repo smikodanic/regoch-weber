@@ -1,0 +1,50 @@
+<main class="w3-container w3-margin">
+  <h1>BrowserStorage Test</h1>
+  The tests work for both localStorage and sessionStorage in parallel. You can check it Chrome Dev Tools -> Application.
+  <br>
+  <br>
+  <input type="text" name="first_name" value="John" data-rg-setinitial="first_name" data-rg-set="first_name" placeholder="first name">
+  <button type="button" data-rg-click="test_put()">put() - string</button> -- save string value
+
+  <br>
+  <br>
+  <input type="text" style="width:340px" name="some_obj" value='{"str": "some string", "num": 55}' data-rg-setinitial="some_obj @@ convertType" data-rg-set="some_obj @@ convertType" placeholder="enter JSON">
+  <button type="button" data-rg-click="test_putObject()">putObject() - object</button> -- save object
+
+  <br>
+  <br>
+  <br>
+  <button type="button" data-rg-click="test_getAll()">getAll()</button> -- list all values
+  <div>
+    <b>localStorage</b>
+    <p data-rg-for="$model.localStorageValues" data-rg-print="$model.localStorageValues.$i @@ prepend"></p>
+  </div>
+  <div>
+    <b>sessionStorage</b>
+    <p data-rg-for="$model.sessionStorageValues" data-rg-print="$model.sessionStorageValues.$i @@ prepend"></p>
+  </div>
+
+  <br>
+  <br>
+  <input type="text" name="storageName" value="first_name" data-rg-setinitial="storageName" data-rg-set="storageName" placeholder="enter storage name">
+  <button type="button" data-rg-click="test_get()">get()</button>
+  -- <b>localStorage</b>: <i data-rg-print="$model.localStorageVal"></i>
+  -- <b>sessionStorage</b>: <i data-rg-print="$model.sessionStorageVal"></i>
+
+  <br>
+  <br>
+  <input type="text" name="storageName2" value="some_obj" data-rg-setinitial="storageName2" data-rg-set="storageName2" placeholder="enter storage name of the object">
+  <button type="button" data-rg-click="test_getObject()">getObject()</button>
+  -- <b>localStorage</b>: <i data-rg-print="$model.localStorageVal2"></i>
+  -- <b>sessionStorage</b>: <i data-rg-print="$model.sessionStorageVal2"></i>
+
+  <br>
+  <br>
+  <input type="text" name="storageName3" value="first_name" data-rg-setinitial="storageName3" data-rg-set="storageName3" placeholder="enter storage name">
+  <button type="button" data-rg-click="test_remove()">remove()</button>
+
+  <br>
+  <br>
+  <button type="button" data-rg-click="test_removeAll()">removeAll()</button>
+
+</main>
