@@ -47,6 +47,8 @@ class DataRgCtrl extends Controller {
       { name: 'TRAIN-B', from: 'ST', to: 'KN', duration: 66 }
     ];
 
+    this.$model.kids = [];
+
     // initial value for runREPEAT
     this.$model.multiplikator = 3;
     this.repeat_var_name = 'multiplikator';
@@ -106,8 +108,15 @@ class DataRgCtrl extends Controller {
     ];
   }
 
-  // show array elements by using data-rg-for
-  async runFOR2() {
+  runFOR2() {
+    this.$model.companies2 = [
+      { name: 'Jedan doo', size: 1 },
+      { name: 'Dva doo', size: 2 }
+    ];
+  }
+
+  // solve $i, {{}} and solveMath
+  async runFORsolvers() {
     this.skipNum = 10;
     this.$model.herbals = ['corn', 'banana', 'plum', 'straw'];
   }
@@ -178,6 +187,12 @@ class DataRgCtrl extends Controller {
     this.ad_num = n;
     this.$model.advert___3 = '#3. I sell red Mercedes car.';
     this.$model.advert___4 = '#4. I sell chickens.';
+  }
+
+
+  print_nicepet() {
+    this.$model.nicepetName = undefined;
+    this.$model.nicepetName2 = 'Rexy';
   }
 
 

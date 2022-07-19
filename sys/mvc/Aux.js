@@ -137,7 +137,7 @@ class Aux {
    * Replace iteration variable $i with the number. Use only inside data-rg-for and data-rg-repeat.
    * @param {number} i - number to replace $i with
    * @param {string} txt - text which needs to be replaced, usually it contains HTML tags
-   * @param {string} $iExtension - extension of the variable name. For example if $iExtension is 21 then the $i21 will be replaced.
+   * @param {string} $iExtension - extension of the variable name. For example if $iExtension is 21 then the $i21 will be replaced. Usually it's the priority number.
    * @returns {string}
    */
   _solve_$i(i, txt, $iExtension) {
@@ -553,13 +553,47 @@ class Aux {
 
 
   /**
+   * Get the DOM elements.
+   * For example in data-rg-for="$model.companies.$i0.{{fields.$i1}}" the attrName will be 'data-rg-for'.
+   * As the controller sets this.$model.companies = [...] then attrValQuery will be '$model.companies'.
+   * In this case the listed (rendered) elements will be data-rg-for="$model.companies", data-rg-for="$model.companies.$i", data-rg-for="$model.companies.$i0.{{fields.$i1}}"
+   * but not data-rg-for="$model.companies2", data-rg-for="$model.companies2.$i.name", ...
+   * @param {string} attrName - attribute name - 'data-rg-for'
+   * @param {string} attrValQuery - query the attribute value, for example: 'companies' , or /companies\.\$/i
+   * @returns {HTMLElement[]}
+   */
+  _listElements(attrName, attrValQuery) {
+    const attrName_elems = document.querySelectorAll(`[${attrName}]`); // all elems with attrName attribute
+
+    let elems = [];
+    if (!!attrValQuery) {
+      const attrValQuery2 = attrValQuery.replace('$', '\\$');
+      const reg = new RegExp(`${attrValQuery2}$|${attrValQuery2}[\\s\\@\\.]+.*$`); // $model.companies or $model.companies.
+
+      for (const attrName_elem of attrName_elems) {
+        const attrVal = attrName_elem.getAttribute(attrName); // '$model.companies' or  '$model.companies @@ inner'  or  '$model.companies.$i0.name'
+        const tf = reg.test(attrVal);
+        if (tf) { elems.push(attrName_elem); }
+      }
+      // console.log(attrName, attrValQuery, reg, elems);
+
+    } else {
+      elems = attrName_elems;
+    }
+
+
+    return elems;
+  }
+
+
+  /**
    * Get the DOM elements by the query.
-   * For example in data-rg-for="companies.$i{fields.$i}" --> attrName will be 'data-rg-for' and attrQuery will be /^companies\.\$\{fields/
+   * Here is the issue that this.$model.companies = 'Cloud ltd' will render data-rg-print="$model.companies" and data-rg-print="$model.companies2"
    * @param {string} attrName - attribute name - 'data-rg-for'
    * @param {string|RegExp} attrValQuery - query the attribute value, for example: 'companies' , or /companies\.\$/i
    * @returns {HTMLElement[]}
    */
-  _listElements(attrName, attrValQuery) {
+  _listElements_old(attrName, attrValQuery) {
     let elems = document.querySelectorAll(`[${attrName}]`);
 
     if (!!attrValQuery && typeof attrValQuery === 'string') {
@@ -574,6 +608,8 @@ class Aux {
       }
       elems = elems2;
     }
+
+    // console.log('OLD::', attrName, attrValQuery, elems);
 
     return elems;
   }

@@ -498,7 +498,7 @@ class Aux {
    * Replace iteration variable $i with the number. Use only inside data-rg-for and data-rg-repeat.
    * @param {number} i - number to replace $i with
    * @param {string} txt - text which needs to be replaced, usually it contains HTML tags
-   * @param {string} $iExtension - extension of the variable name. For example if $iExtension is 21 then the $i21 will be replaced.
+   * @param {string} $iExtension - extension of the variable name. For example if $iExtension is 21 then the $i21 will be replaced. Usually it's the priority number.
    * @returns {string}
    */
   _solve_$i(i, txt, $iExtension) {
@@ -914,13 +914,47 @@ class Aux {
 
 
   /**
+   * Get the DOM elements.
+   * For example in data-rg-for="$model.companies.$i0.{{fields.$i1}}" the attrName will be 'data-rg-for'.
+   * As the controller sets this.$model.companies = [...] then attrValQuery will be '$model.companies'.
+   * In this case the listed (rendered) elements will be data-rg-for="$model.companies", data-rg-for="$model.companies.$i", data-rg-for="$model.companies.$i0.{{fields.$i1}}"
+   * but not data-rg-for="$model.companies2", data-rg-for="$model.companies2.$i.name", ...
+   * @param {string} attrName - attribute name - 'data-rg-for'
+   * @param {string} attrValQuery - query the attribute value, for example: 'companies' , or /companies\.\$/i
+   * @returns {HTMLElement[]}
+   */
+  _listElements(attrName, attrValQuery) {
+    const attrName_elems = document.querySelectorAll(`[${attrName}]`); // all elems with attrName attribute
+
+    let elems = [];
+    if (!!attrValQuery) {
+      const attrValQuery2 = attrValQuery.replace('$', '\\$');
+      const reg = new RegExp(`${attrValQuery2}$|${attrValQuery2}[\\s\\@\\.]+.*$`); // $model.companies or $model.companies.
+
+      for (const attrName_elem of attrName_elems) {
+        const attrVal = attrName_elem.getAttribute(attrName); // '$model.companies' or  '$model.companies @@ inner'  or  '$model.companies.$i0.name'
+        const tf = reg.test(attrVal);
+        if (tf) { elems.push(attrName_elem); }
+      }
+      // console.log(attrName, attrValQuery, reg, elems);
+
+    } else {
+      elems = attrName_elems;
+    }
+
+
+    return elems;
+  }
+
+
+  /**
    * Get the DOM elements by the query.
-   * For example in data-rg-for="companies.$i{fields.$i}" --> attrName will be 'data-rg-for' and attrQuery will be /^companies\.\$\{fields/
+   * Here is the issue that this.$model.companies = 'Cloud ltd' will render data-rg-print="$model.companies" and data-rg-print="$model.companies2"
    * @param {string} attrName - attribute name - 'data-rg-for'
    * @param {string|RegExp} attrValQuery - query the attribute value, for example: 'companies' , or /companies\.\$/i
    * @returns {HTMLElement[]}
    */
-  _listElements(attrName, attrValQuery) {
+  _listElements_old(attrName, attrValQuery) {
     let elems = document.querySelectorAll(`[${attrName}]`);
 
     if (!!attrValQuery && typeof attrValQuery === 'string') {
@@ -935,6 +969,8 @@ class Aux {
       }
       elems = elems2;
     }
+
+    // console.log('OLD::', attrName, attrValQuery, elems);
 
     return elems;
   }
@@ -1474,7 +1510,7 @@ class DataRg extends mvc_DataRgListeners {
     const attrName = 'data-rg-for';
     this._removeParentElements(attrName, attrValQuery);
     let elems = this._listElements(attrName, attrValQuery);
-    elems = this._sortElementsByPriority(elems, attrName); // sorted elements
+    elems = this._sortElementsByPriority(elems, attrName); // first render elements with higher priority
     this._debug('rgFor', `found elements:: ${elems.length} | attrValQuery:: ${attrValQuery}`, 'navy');
     if (!elems.length) { return; }
 
@@ -1483,18 +1519,19 @@ class DataRg extends mvc_DataRgListeners {
       const attrVal = elem.getAttribute(attrName); // company.employers
       const attrValSplited = attrVal.split(this.$rg.separator);
 
-      const priority = !!attrValSplited[1] ? attrValSplited[1].trim() : 0;
+      const priority = !!attrValSplited[1] ? attrValSplited[1].trim() : '0';
 
       const prop = attrValSplited[0].trim();
       const val = this._getControllerValue(prop); // Array
-
       if (this._debug().rgFor) { console.log('rgFor -->', 'attrVal::', attrVal, ' | val::', val, ' priority::', priority); }
+
+      if (val === undefined) { continue; } // don't render elements with undefined controller's value
 
       // remove all gen elems
       this._genElem_remove(elem, attrName, attrVal);
 
-      // hide element if val is not defined
-      if (!val || (!!val && !val.length)) { elem.style.display = 'none'; continue; }
+      // hide element if val is empty array
+      if (Array.isArray(val) && !val.length) { elem.style.display = 'none'; continue; }
 
 
       // multiply new element by cloning and adding sibling elements
@@ -1506,7 +1543,7 @@ class DataRg extends mvc_DataRgListeners {
 
         // solve outerHTML - $i0, {{ctrlProp}}, solveMath//
         const i2 = newElemsTotal - i; // 3,2,1,0
-        let outerHTML = this._solve_$i(i2, newElem.outerHTML, priority); // replace $i, $i1, $i12 with the number
+        let outerHTML = this._solve_$i(i2, newElem.outerHTML, priority); // replace $i, $i1, $i12 with the integer
         outerHTML = this._solveInterpolated(outerHTML); // parse interpolated text in the variable name, for example: pet_{{$model.pets.$i0._id}}
         outerHTML = this._solveMath(outerHTML);
         newElem.outerHTML = outerHTML;
@@ -1543,6 +1580,8 @@ class DataRg extends mvc_DataRgListeners {
       const prop = attrVal.trim();
       const val = +this._getControllerValue(prop);
       this._debug('rgRepeat', `Element will be repeated ${val} times.`, 'navy');
+
+      if (val === undefined) { continue; } // don't render elements with undefined controller's value
 
       // remove all gen elems
       this._genElem_remove(elem, attrName, attrVal);
@@ -1601,13 +1640,13 @@ class DataRg extends mvc_DataRgListeners {
       const prop = propPipeSplitted[0].trim(); // company.name
       let val = this._getControllerValue(prop);
 
+      if (val === undefined) { continue; } // don't render elements with undefined controller's value
+
       // correct val
-      const toKeep = !!attrValSplited[2] ? attrValSplited[2].trim() === 'keep' : false; // to keep the innerHTML as value when val is undefined
-      if (val === undefined) { val = toKeep ? elem.innerHTML : ''; } // the default value is defined in the HTML tag
-      else if (typeof val === 'object') { val = JSON.stringify(val); }
+      if (typeof val === 'string') { val = val; }
       else if (typeof val === 'number') { val = +val; }
-      else if (typeof val === 'string') { val = val; }
       else if (typeof val === 'boolean') { val = val.toString(); }
+      else if (typeof val === 'object') { val = JSON.stringify(val); }
       else { val = val; }
 
       // apply pipe, for example: data-rg-print="val | slice(0,130)"
@@ -1653,7 +1692,7 @@ class DataRg extends mvc_DataRgListeners {
         elem.innerHTML = val;
       }
 
-      this._debug('rgPrint', `rgPrint:: ${propPipe} = ${val} -- act::"${act}" -- toKeep::${toKeep}`, 'navy');
+      this._debug('rgPrint', `rgPrint:: ${propPipe} = ${val} -- act::"${act}"`, 'navy');
     }
 
     this._debug('rgPrint', '--------- rgPrint (end) ------', 'navy', '#B6ECFF');
@@ -1835,6 +1874,8 @@ class DataRg extends mvc_DataRgListeners {
       const prop = attrValSplited[0].trim();
       const val = this._getControllerValue(prop);
 
+      if (val === undefined) { continue; } // don't render elements with undefined controller's value
+
       // get data-rg-switchcase and data-rg-switchdefault attribute values
       const switchcaseElems = elem.querySelectorAll('[data-rg-switch] > [data-rg-switchcase]');
       const switchdefaultElem = elem.querySelector('[data-rg-switch] > [data-rg-switchdefault]');
@@ -1930,10 +1971,11 @@ class DataRg extends mvc_DataRgListeners {
 
       const prop = attrVal.trim();
       const val = this._getControllerValue(prop);
+      this._debug('rgValue', `elem.type:: ${elem.type} -- ${prop}:: ${val}`, 'navy');
+
+      if (val === undefined) { return; } // don't render elements with undefined controller's value
 
       this._setElementValue(elem, val);
-
-      this._debug('rgValue', `elem.type:: ${elem.type} -- ${prop}:: ${val}`, 'navy');
     }
   }
 
@@ -1963,6 +2005,9 @@ class DataRg extends mvc_DataRgListeners {
 
       const prop = attrVal.trim();
       const val = this._getControllerValue(prop); // val must be array
+
+      if (val === undefined) { continue; } // don't render elements with undefined controller's value
+
       if (!Array.isArray(val)) { console.error(`rgChecked Error:: The controller property ${prop} is not array.`); continue; }
 
       if (val.indexOf(elem.value) !== -1) { elem.checked = true; }
@@ -1997,7 +2042,10 @@ class DataRg extends mvc_DataRgListeners {
       const attrValSplited = attrVal.split(this.$rg.separator);
 
       const prop = attrValSplited[0].trim(); // controller property name company.name
-      const valArr = this._getControllerValue(prop) || []; // ['my-bold', 'my-italic']
+      const valArr = this._getControllerValue(prop) || []; // must be array ['my-bold', 'my-italic']
+
+      if (valArr === undefined) { continue; } // don't render elements with undefined controller's value
+
       if (!Array.isArray(valArr)) { console.log(`%c rgClassWarn:: The controller property "${prop}" is not an array.`, `color:Maroon; background:LightYellow`); continue; }
 
       let act = attrValSplited[1] || '';
@@ -2036,6 +2084,8 @@ class DataRg extends mvc_DataRgListeners {
 
       const prop = attrValSplited[0].trim();
       const valObj = this._getControllerValue(prop); // {fontSize: '21px', color: 'red'}
+
+      if (valObj === undefined) { continue; } // don't render elements with undefined controller's value
 
       let act = attrValSplited[1] || '';
       act = act.trim() || 'add';
@@ -2077,6 +2127,8 @@ class DataRg extends mvc_DataRgListeners {
       const prop = attrValSplited[0].trim();
       const val = this._getControllerValue(prop);
 
+      if (val === undefined) { continue; } // don't render elements with undefined controller's value
+
       // when val is undefined load defaultSrc
       let defaultSrc = attrValSplited[1] || '';
       defaultSrc = defaultSrc.trim();
@@ -2112,6 +2164,8 @@ class DataRg extends mvc_DataRgListeners {
 
       const prop = attrValSplited[0].trim();
       const val = this._getControllerValue(prop);
+
+      if (val === undefined) { continue; } // don't render elements with undefined controller's value
 
       if (!attrValSplited[1]) { console.error(`Attribute name is not defined in the ${attrName}="${attrVal}".`); continue; }
       const attribute_name = attrValSplited[1].trim(); // href
@@ -6285,6 +6339,8 @@ class DataRgCtrl extends mvc_Controller {
       { name: 'TRAIN-B', from: 'ST', to: 'KN', duration: 66 }
     ];
 
+    this.$model.kids = [];
+
     // initial value for runREPEAT
     this.$model.multiplikator = 3;
     this.repeat_var_name = 'multiplikator';
@@ -6344,8 +6400,15 @@ class DataRgCtrl extends mvc_Controller {
     ];
   }
 
-  // show array elements by using data-rg-for
-  async runFOR2() {
+  runFOR2() {
+    this.$model.companies2 = [
+      { name: 'Jedan doo', size: 1 },
+      { name: 'Dva doo', size: 2 }
+    ];
+  }
+
+  // solve $i, {{}} and solveMath
+  async runFORsolvers() {
     this.skipNum = 10;
     this.$model.herbals = ['corn', 'banana', 'plum', 'straw'];
   }
@@ -6416,6 +6479,12 @@ class DataRgCtrl extends mvc_Controller {
     this.ad_num = n;
     this.$model.advert___3 = '#3. I sell red Mercedes car.';
     this.$model.advert___4 = '#4. I sell chickens.';
+  }
+
+
+  print_nicepet() {
+    this.$model.nicepetName = undefined;
+    this.$model.nicepetName2 = 'Rexy';
   }
 
 

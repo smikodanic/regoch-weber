@@ -72,7 +72,7 @@ class DataRg extends DataRgListeners {
     const attrName = 'data-rg-for';
     this._removeParentElements(attrName, attrValQuery);
     let elems = this._listElements(attrName, attrValQuery);
-    elems = this._sortElementsByPriority(elems, attrName); // sorted elements
+    elems = this._sortElementsByPriority(elems, attrName); // first render elements with higher priority
     this._debug('rgFor', `found elements:: ${elems.length} | attrValQuery:: ${attrValQuery}`, 'navy');
     if (!elems.length) { return; }
 
@@ -81,18 +81,19 @@ class DataRg extends DataRgListeners {
       const attrVal = elem.getAttribute(attrName); // company.employers
       const attrValSplited = attrVal.split(this.$rg.separator);
 
-      const priority = !!attrValSplited[1] ? attrValSplited[1].trim() : 0;
+      const priority = !!attrValSplited[1] ? attrValSplited[1].trim() : '0';
 
       const prop = attrValSplited[0].trim();
       const val = this._getControllerValue(prop); // Array
-
       if (this._debug().rgFor) { console.log('rgFor -->', 'attrVal::', attrVal, ' | val::', val, ' priority::', priority); }
+
+      if (val === undefined) { continue; } // don't render elements with undefined controller's value
 
       // remove all gen elems
       this._genElem_remove(elem, attrName, attrVal);
 
-      // hide element if val is not defined
-      if (!val || (!!val && !val.length)) { elem.style.display = 'none'; continue; }
+      // hide element if val is empty array
+      if (Array.isArray(val) && !val.length) { elem.style.display = 'none'; continue; }
 
 
       // multiply new element by cloning and adding sibling elements
@@ -104,7 +105,7 @@ class DataRg extends DataRgListeners {
 
         // solve outerHTML - $i0, {{ctrlProp}}, solveMath//
         const i2 = newElemsTotal - i; // 3,2,1,0
-        let outerHTML = this._solve_$i(i2, newElem.outerHTML, priority); // replace $i, $i1, $i12 with the number
+        let outerHTML = this._solve_$i(i2, newElem.outerHTML, priority); // replace $i, $i1, $i12 with the integer
         outerHTML = this._solveInterpolated(outerHTML); // parse interpolated text in the variable name, for example: pet_{{$model.pets.$i0._id}}
         outerHTML = this._solveMath(outerHTML);
         newElem.outerHTML = outerHTML;
@@ -141,6 +142,8 @@ class DataRg extends DataRgListeners {
       const prop = attrVal.trim();
       const val = +this._getControllerValue(prop);
       this._debug('rgRepeat', `Element will be repeated ${val} times.`, 'navy');
+
+      if (val === undefined) { continue; } // don't render elements with undefined controller's value
 
       // remove all gen elems
       this._genElem_remove(elem, attrName, attrVal);
@@ -199,13 +202,13 @@ class DataRg extends DataRgListeners {
       const prop = propPipeSplitted[0].trim(); // company.name
       let val = this._getControllerValue(prop);
 
+      if (val === undefined) { continue; } // don't render elements with undefined controller's value
+
       // correct val
-      const toKeep = !!attrValSplited[2] ? attrValSplited[2].trim() === 'keep' : false; // to keep the innerHTML as value when val is undefined
-      if (val === undefined) { val = toKeep ? elem.innerHTML : ''; } // the default value is defined in the HTML tag
-      else if (typeof val === 'object') { val = JSON.stringify(val); }
+      if (typeof val === 'string') { val = val; }
       else if (typeof val === 'number') { val = +val; }
-      else if (typeof val === 'string') { val = val; }
       else if (typeof val === 'boolean') { val = val.toString(); }
+      else if (typeof val === 'object') { val = JSON.stringify(val); }
       else { val = val; }
 
       // apply pipe, for example: data-rg-print="val | slice(0,130)"
@@ -251,7 +254,7 @@ class DataRg extends DataRgListeners {
         elem.innerHTML = val;
       }
 
-      this._debug('rgPrint', `rgPrint:: ${propPipe} = ${val} -- act::"${act}" -- toKeep::${toKeep}`, 'navy');
+      this._debug('rgPrint', `rgPrint:: ${propPipe} = ${val} -- act::"${act}"`, 'navy');
     }
 
     this._debug('rgPrint', '--------- rgPrint (end) ------', 'navy', '#B6ECFF');
@@ -433,6 +436,8 @@ class DataRg extends DataRgListeners {
       const prop = attrValSplited[0].trim();
       const val = this._getControllerValue(prop);
 
+      if (val === undefined) { continue; } // don't render elements with undefined controller's value
+
       // get data-rg-switchcase and data-rg-switchdefault attribute values
       const switchcaseElems = elem.querySelectorAll('[data-rg-switch] > [data-rg-switchcase]');
       const switchdefaultElem = elem.querySelector('[data-rg-switch] > [data-rg-switchdefault]');
@@ -528,10 +533,11 @@ class DataRg extends DataRgListeners {
 
       const prop = attrVal.trim();
       const val = this._getControllerValue(prop);
+      this._debug('rgValue', `elem.type:: ${elem.type} -- ${prop}:: ${val}`, 'navy');
+
+      if (val === undefined) { return; } // don't render elements with undefined controller's value
 
       this._setElementValue(elem, val);
-
-      this._debug('rgValue', `elem.type:: ${elem.type} -- ${prop}:: ${val}`, 'navy');
     }
   }
 
@@ -561,6 +567,9 @@ class DataRg extends DataRgListeners {
 
       const prop = attrVal.trim();
       const val = this._getControllerValue(prop); // val must be array
+
+      if (val === undefined) { continue; } // don't render elements with undefined controller's value
+
       if (!Array.isArray(val)) { console.error(`rgChecked Error:: The controller property ${prop} is not array.`); continue; }
 
       if (val.indexOf(elem.value) !== -1) { elem.checked = true; }
@@ -595,7 +604,10 @@ class DataRg extends DataRgListeners {
       const attrValSplited = attrVal.split(this.$rg.separator);
 
       const prop = attrValSplited[0].trim(); // controller property name company.name
-      const valArr = this._getControllerValue(prop) || []; // ['my-bold', 'my-italic']
+      const valArr = this._getControllerValue(prop) || []; // must be array ['my-bold', 'my-italic']
+
+      if (valArr === undefined) { continue; } // don't render elements with undefined controller's value
+
       if (!Array.isArray(valArr)) { console.log(`%c rgClassWarn:: The controller property "${prop}" is not an array.`, `color:Maroon; background:LightYellow`); continue; }
 
       let act = attrValSplited[1] || '';
@@ -634,6 +646,8 @@ class DataRg extends DataRgListeners {
 
       const prop = attrValSplited[0].trim();
       const valObj = this._getControllerValue(prop); // {fontSize: '21px', color: 'red'}
+
+      if (valObj === undefined) { continue; } // don't render elements with undefined controller's value
 
       let act = attrValSplited[1] || '';
       act = act.trim() || 'add';
@@ -675,6 +689,8 @@ class DataRg extends DataRgListeners {
       const prop = attrValSplited[0].trim();
       const val = this._getControllerValue(prop);
 
+      if (val === undefined) { continue; } // don't render elements with undefined controller's value
+
       // when val is undefined load defaultSrc
       let defaultSrc = attrValSplited[1] || '';
       defaultSrc = defaultSrc.trim();
@@ -710,6 +726,8 @@ class DataRg extends DataRgListeners {
 
       const prop = attrValSplited[0].trim();
       const val = this._getControllerValue(prop);
+
+      if (val === undefined) { continue; } // don't render elements with undefined controller's value
 
       if (!attrValSplited[1]) { console.error(`Attribute name is not defined in the ${attrName}="${attrVal}".`); continue; }
       const attribute_name = attrValSplited[1].trim(); // href

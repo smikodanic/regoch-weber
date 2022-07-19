@@ -5,14 +5,21 @@
   <h3>--GENERATORS--</h3>
 
   <h4>DATA-RG-FOR</h4>
-  <button data-rg-click="runFOR()">run FOR (priority: 0)</button>
+  <button data-rg-click="runFOR()">run FOR (priority: 0)</button> - render only $model.companies
   <p data-rg-for="$model.companies" style="color:green" class="solveMath/$i+1/">
     <span data-rg-print="$model.companies.$i.name @@ append">solveMath/$i+1/. name:</span> --
     <b data-rg-print="$model.companies.$i.size"></b>
   </p>
 
+  <br>
+  <br><button data-rg-click="runFOR2()">run FOR </button> - render only $model.companies2
+  <p data-rg-for="$model.companies2" style="color:green" class="smth">
+    <span data-rg-echo="$i. {{$model.companies2.$i.name}}"></span>
+    <span data-rg-print="$model.companies2.$i.size"></span>
+  </p>
+
   <br><br>
-  <button data-rg-click="runFOR2()">run FOR2 (priority: 1)</button> - initial array has no elements. Example with <b>@@priority</b> parameter and solveMath/ / method.
+  <button data-rg-click="runFORsolvers()">run FORsolvers (priority: 1)</button> - initial array has no elements. Example with <b>@@priority</b> parameter, $i and solveMath method.
   <ul>
     <!-- All commented examples works ! -->
     <li data-rg-for="$model.herbals"><span data-rg-print="$model.herbals.$i @@ append">skipNum:{{skipNum}} | $i | solveMath/$i + 1/ | solveMath/({{skipNum}} + $i) * 5/ |</span> </li>
@@ -108,13 +115,23 @@
   <p data-rg-print="$model.advert___{{ad_num}}"></p>
   <p data-rg-print="$model.advert___solveMath/{{ad_num}} + 1/"></p>
 
+  <br><br>
+  <h4>DATA-RG-PRINT - two simmilar $model property names</h4>
+  There was an issue with two simmilar data-rg-xyz names.
+  <br>For example: this.$model.nicepetName = 'Astor' will render data-rg-print="$model.nicepetName", but also render of data-rg-print="$model.nicepetName2" .
+  <br>This is due to <b>elems = document.querySelectorAll(`[${attrName}^="${attrValQuery}"]`);</b> in Aux._listElements().
+  <br>
+  <br>undefined value: <i data-rg-print="$model.nicepetName"></i>
+  <br>not undefined value: <i data-rg-print="$model.nicepetName2"></i>
+  <br><button data-rg-click="print_nicepet()"">print nicepet</button>
+
   <br><br><br>
   <h3>--NON-GENERATORS--</h3>
 
   <br><br>
   <h4>DATA-RG-IF (with comparison functions: $not, $eq, ...</h4>
   <i>Notice that initially ifY object is undefined</i>
-  <br><button data-rg-click="runIF()">run IF</button>
+  <br><button data-rg-click=" runIF()">run IF</button>
   <br>1. $model.ifY.bool <span data-rg-if="$model.ifY.bool" style="color:green">OK</span>
   <br>1. $model.ifY.bool $eq(true)<span data-rg-if="$model.ifY.bool $eq(true)" style="color:green">OK</span>
   <br>1. $model.ifY.bool $eq(this.myBool)<span data-rg-if="$model.ifY.bool $eq(this.myBool)" style="color:green">OK</span>
