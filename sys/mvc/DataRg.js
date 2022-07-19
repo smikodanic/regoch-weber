@@ -33,7 +33,6 @@ class DataRg extends DataRgListeners {
     const attrName = 'data-rg-setinitial';
     const elems = this._listElements(attrName, '');
     this._debug('rgSetinitial', `found elements:: ${elems.length}`, 'navy');
-    if (!elems.length) { return; }
 
     for (const elem of elems) {
       const attrVal = elem.getAttribute(attrName) || ''; // 'controllerProperty @@convertTypeNot'
@@ -74,7 +73,6 @@ class DataRg extends DataRgListeners {
     let elems = this._listElements(attrName, attrValQuery);
     elems = this._sortElementsByPriority(elems, attrName); // first render elements with higher priority
     this._debug('rgFor', `found elements:: ${elems.length} | attrValQuery:: ${attrValQuery}`, 'navy');
-    if (!elems.length) { return; }
 
 
     for (const elem of elems) {
@@ -133,7 +131,6 @@ class DataRg extends DataRgListeners {
     const attrName = 'data-rg-repeat';
     const elems = this._listElements(attrName, attrValQuery);
     this._debug('rgRepeat', `found elements:: ${elems.length} | attrValQuery:: ${attrValQuery}`, 'navy');
-    if (!elems.length) { return; }
 
 
     for (const elem of elems) {
@@ -189,7 +186,6 @@ class DataRg extends DataRgListeners {
     const attrName = 'data-rg-print';
     const elems = this._listElements(attrName, attrValQuery);
     this._debug('rgPrint', `found elements:: ${elems.length} | attrValQuery:: ${attrValQuery}`, 'navy');
-    if (!elems.length) { return; }
 
 
     for (const elem of elems) {
@@ -280,7 +276,6 @@ class DataRg extends DataRgListeners {
     const elems = this._listElements(attrName, attrValQuery);
     this._debug('rgIf', `found elements:: ${elems.length} | attrValQuery:: ${attrValQuery}`, 'navy');
 
-    if (!elems.length) { return; }
 
     for (const elem of elems) {
       const attrVal = elem.getAttribute(attrName).trim(); // age_tf , $model.age === 3, age > this.myAge , age < $model.yourAge , age $lt($model.age)
@@ -327,7 +322,6 @@ class DataRg extends DataRgListeners {
     const attrName = 'data-rg-spinner';
     const elems = this._listElements(attrName, attrValQuery);
     this._debug('rgSpinner', `found elements:: ${elems.length} | attrValQuery:: ${attrValQuery}`, 'navy');
-    if (!elems.length) { return; }
 
     for (const elem of elems) {
       const attrVal = elem.getAttribute(attrName).trim(); // ifAge
@@ -425,7 +419,7 @@ class DataRg extends DataRgListeners {
     const attrName = 'data-rg-switch';
     const elems = this._listElements(attrName, attrValQuery);
     this._debug('rgSwitch', `found elements:: ${elems.length} | attrValQuery:: ${attrValQuery}`, 'navy');
-    if (!elems.length) { return; }
+
 
     for (const elem of elems) {
       const attrVal = elem.getAttribute(attrName) || ''; // 'controllerProperty @@ multiple'
@@ -481,7 +475,7 @@ class DataRg extends DataRgListeners {
     const attrName = 'data-rg-disabled';
     const elems = this._listElements(attrName, attrValQuery);
     this._debug('rgDisabled', `found elements:: ${elems.length} | attrValQuery:: ${attrValQuery}`, 'navy');
-    if (!elems.length) { return; }
+
 
     for (const elem of elems) {
       const attrVal = elem.getAttribute(attrName).trim(); // ifAge
@@ -525,7 +519,6 @@ class DataRg extends DataRgListeners {
     const attrName = 'data-rg-value';
     const elems = this._listElements(attrName, attrValQuery);
     this._debug('rgValue', `found elements:: ${elems.length} | attrValQuery:: ${attrValQuery}`, 'navy');
-    if (!elems.length) { return; }
 
     for (const elem of elems) {
       const attrVal = elem.getAttribute(attrName);
@@ -535,7 +528,7 @@ class DataRg extends DataRgListeners {
       const val = this._getControllerValue(prop);
       this._debug('rgValue', `elem.type:: ${elem.type} -- ${prop}:: ${val}`, 'navy');
 
-      if (val === undefined) { return; } // don't render elements with undefined controller's value
+      if (val === undefined) { continue; } // don't render elements with undefined controller's value
 
       this._setElementValue(elem, val);
     }
@@ -559,7 +552,7 @@ class DataRg extends DataRgListeners {
     const attrName = 'data-rg-checked';
     const elems = this._listElements(attrName, attrValQuery);
     this._debug('rgChecked', `found elements:: ${elems.length} | attrValQuery:: ${attrValQuery}`, 'navy');
-    if (!elems.length) { return; }
+
 
     for (const elem of elems) {
       const attrVal = elem.getAttribute(attrName);
@@ -597,7 +590,7 @@ class DataRg extends DataRgListeners {
     const attrName = 'data-rg-class';
     const elems = this._listElements(attrName, attrValQuery);
     this._debug('rgClass', `found elements:: ${elems.length} | attrValQuery:: ${attrValQuery}`, 'navy');
-    if (!elems.length) { return; }
+
 
     for (const elem of elems) {
       const attrVal = elem.getAttribute(attrName) || ''; // 'controllerProperty'
@@ -638,7 +631,7 @@ class DataRg extends DataRgListeners {
     const attrName = 'data-rg-style';
     const elems = this._listElements(attrName, attrValQuery);
     this._debug('rgStyle', `found elements:: ${elems.length} | attrValQuery:: ${attrValQuery}`, 'navy');
-    if (!elems.length) { return; }
+
 
     for (const elem of elems) {
       const attrVal = elem.getAttribute(attrName) || ''; // 'controllerProperty'
@@ -680,7 +673,7 @@ class DataRg extends DataRgListeners {
     const attrName = 'data-rg-src';
     const elems = this._listElements(attrName, attrValQuery);
     this._debug('rgSrc', `found elements:: ${elems.length} | attrValQuery:: ${attrValQuery}`, 'navy');
-    if (!elems.length) { return; }
+
 
     for (const elem of elems) {
       const attrVal = elem.getAttribute(attrName) || '';
@@ -718,7 +711,7 @@ class DataRg extends DataRgListeners {
     const attrName = 'data-rg-attr';
     const elems = this._listElements(attrName, attrValQuery);
     this._debug('rgAttr', `found elements:: ${elems.length} | attrValQuery:: ${attrValQuery}`, 'navy');
-    if (!elems.length) { return; }
+
 
     for (const elem of elems) {
       const attrVal = elem.getAttribute(attrName) || ''; // pageURL @@ href
@@ -754,9 +747,8 @@ class DataRg extends DataRgListeners {
     const attrName = 'data-rg-elem';
     const elems = this._listElements(attrName, attrValQuery);
     this._debug('rgElem', `found elements:: ${elems.length} | attrValQuery:: ${attrValQuery}`, 'navy');
-    if (!elems.length) { return; }
 
-    // associate values
+    // associate values to $rg
     for (const elem of elems) {
       const attrVal = elem.getAttribute(attrName) || ''; // 'paragraf'
       this.$rg.elems[attrVal] = elem;
@@ -778,9 +770,8 @@ class DataRg extends DataRgListeners {
     const attrName = 'data-rg-echo';
     const elems = this._listElements(attrName, '');
     this._debug('rgEcho', `found elements:: ${elems.length}`, 'navy');
-    if (!elems.length) { return; }
 
-    // associate values
+
     for (const elem of elems) {
       let txt = elem.getAttribute('data-rg-echo');
 

@@ -51,7 +51,7 @@ class DataRgListeners extends Aux {
     const attrName = 'data-rg-href';
     const elems = this._listElements(attrName, '');
     this._debug('rgHref', `found elements:: ${elems.length}`, 'orange');
-    if (!elems.length) { return; }
+
 
     for (const elem of elems) {
 
@@ -89,7 +89,7 @@ class DataRgListeners extends Aux {
     const attrName = 'data-rg-click';
     const elems = this._listElements(attrName, '');
     this._debug('rgClick', `found elements:: ${elems.length}`, 'orange');
-    if (!elems.length) { return; }
+
 
     for (const elem of elems) {
       const attrVal = elem.getAttribute(attrName); // string 'myFunc(x, y, ...restArgs) @@ preventDefault'
@@ -126,7 +126,7 @@ class DataRgListeners extends Aux {
     const attrName = 'data-rg-keyup';
     const elems = this._listElements(attrName, '');
     this._debug('rgKeyup', `found elements:: ${elems.length}`, 'orange');
-    if (!elems.length) { return; }
+
 
     for (const elem of elems) {
       const attrVal = elem.getAttribute(attrName);
@@ -167,7 +167,7 @@ class DataRgListeners extends Aux {
     const attrName = 'data-rg-change';
     const elems = this._listElements(attrName, '');
     this._debug('rgChange', `found elements:: ${elems.length}`, 'orange');
-    if (!elems.length) { return; }
+
 
     for (const elem of elems) {
       const attrVal = elem.getAttribute(attrName); // string 'myFunc(x, y, ...restArgs)'
@@ -200,7 +200,7 @@ class DataRgListeners extends Aux {
     const attrName = 'data-rg-evt';
     const elems = this._listElements(attrName, '');
     this._debug('rgEvt', `found elements:: ${elems.length}`, 'orange');
-    if (!elems.length) { return; }
+
 
     for (const elem of elems) {
       const attrVal = elem.getAttribute(attrName).trim(); // mouseenter @@ runEVT($element, $event, 'red') && mouseleave @@ runEVT($element, $event, 'green')
@@ -243,7 +243,7 @@ class DataRgListeners extends Aux {
     const attrName = 'data-rg-set';
     const elems = this._listElements(attrName, '');
     this._debug('rgSet', `found elements:: ${elems.length}`, 'orange');
-    if (!elems.length) { return; }
+
 
     for (const elem of elems) {
       const attrVal = elem.getAttribute(attrName);
@@ -289,7 +289,7 @@ class DataRgListeners extends Aux {
     const attrName = 'data-rg-model';
     const elems = this._listElements(attrName, '');
     this._debug('rgModel', `found elements:: ${elems.length}`, 'orange');
-    if (!elems.length) { return; }
+
 
     for (const elem of elems) {
       const attrVal = elem.getAttribute(attrName);
@@ -319,7 +319,6 @@ class DataRgListeners extends Aux {
       this.$rg.listeners.push({ attrName, elem, handler, eventName });
       this._debug('rgModel', `rgModel listener -- pushed::  <${elem.localName} ${attrName}="${attrVal}"> -- rgListeners: ${this.$rg.listeners.length}`, 'orange');
     }
-
   }
 
 
